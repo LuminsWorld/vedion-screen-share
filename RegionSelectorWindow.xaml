@@ -5,36 +5,36 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     WindowStyle="None"
     AllowsTransparency="True"
-    Background="#55000000"
+    Background="Transparent"
     Topmost="True"
-    WindowState="Maximized"
-    Cursor="Cross"
+    Left="0" Top="0"
+    ShowInTaskbar="False"
     Title="Select Region">
 
-    <Canvas x:Name="MainCanvas"
+    <!-- Full-screen dark overlay — Background must be set for mouse events to fire -->
+    <Canvas x:Name="MainCanvas" Background="#88000000"
             MouseLeftButtonDown="Canvas_MouseDown"
             MouseMove="Canvas_MouseMove"
             MouseLeftButtonUp="Canvas_MouseUp">
 
-        <!-- Instruction text -->
-        <TextBlock x:Name="HintText"
-                   Canvas.Left="20" Canvas.Top="20"
-                   Text="Click and drag to select the screen region to capture. Press Escape to cancel."
-                   Foreground="White" FontSize="16" FontWeight="Bold"
-                   Effect="{DynamicResource TextShadow}"/>
+        <!-- Instruction -->
+        <Border x:Name="HintBorder" Canvas.Left="0" Canvas.Top="0">
+            <TextBlock x:Name="HintText"
+                       Margin="20,16"
+                       Text="Click and drag to select region. Press Escape to cancel."
+                       Foreground="White" FontSize="15" FontWeight="Bold"/>
+        </Border>
 
-        <!-- Selection rectangle -->
+        <!-- Selection box -->
         <Rectangle x:Name="SelectionRect"
-                   Stroke="#00BFFF"
-                   StrokeThickness="2"
+                   Stroke="#00BFFF" StrokeThickness="2"
                    Fill="#3300BFFF"
                    Visibility="Collapsed"/>
 
-        <!-- Size label -->
+        <!-- Dimensions label -->
         <TextBlock x:Name="SizeLabel"
-                   Foreground="#00BFFF"
-                   FontSize="13"
-                   FontWeight="Bold"
+                   Foreground="White" FontSize="12" FontWeight="Bold"
+                   Background="#AA000000" Padding="4,2"
                    Visibility="Collapsed"/>
     </Canvas>
 </Window>

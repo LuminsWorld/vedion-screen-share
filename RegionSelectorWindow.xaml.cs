@@ -17,23 +17,44 @@ namespace VedionScreenShare
         public RegionSelectorWindow()
         {
             InitializeComponent();
-            KeyDown += (s, e) =>
+
+            // Cover all screens
+            var allScreens = System.Windows.Forms.Screen.AllScreens;
+            int minX = int.MaxValue, minY = int.MaxValue;
+            int maxX = int.MinValue, maxY = int.MinValue;
+
+            foreach (var s in allScreens)
             {
-                if (e.Key == Key.Escape)
-                {
-                    WasConfirmed = false;
-                    Close();
-                }
-            };
+                minX = Math.Min(minX, s.Bounds.X);
+                minY = Math.Min(minY, s.Bounds.Y);
+                maxX = Math.Max(maxX, s.Bounds.X + s.Bounds.Width);
+                maxY = Math.Max(maxY, s.Bounds.Y + s.Bounds.Height);
+            }
+
+            Left   = minX;
+            Top    = minY;
+            Width  = maxX - minX;
+            Height = maxY - minY;
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                e.Handled = true; // Stop it bubbling up
+                WasConfirmed = false;
+                Close();
+            }
+            base.OnKeyDown(e);
         }
 
         private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             _startPoint = e.GetPosition(MainCanvas);
             _isDragging = true;
+            HintBorder.Visibility   = Visibility.Collapsed;
             SelectionRect.Visibility = Visibility.Visible;
-            SizeLabel.Visibility = Visibility.Visible;
-            HintText.Visibility = Visibility.Collapsed;
+            SizeLabel.Visibility     = Visibility.Visible;
             MainCanvas.CaptureMouse();
         }
 
@@ -41,27 +62,27 @@ namespace VedionScreenShare
         {
             if (!_isDragging) return;
 
-            Point current = e.GetPosition(MainCanvas);
+            Point cur = e.GetPosition(MainCanvas);
 
-            double x = Math.Min(_startPoint.X, current.X);
-            double y = Math.Min(_startPoint.Y, current.Y);
-            double w = Math.Abs(current.X - _startPoint.X);
-            double h = Math.Abs(current.Y - _startPoint.Y);
+            double x = Math.Min(_startPoint.X, cur.X);
+            double y = Math.Min(_startPoint.Y, cur.Y);
+            double w = Math.Abs(cur.X - _startPoint.X);
+            double h = Math.Abs(cur.Y - _startPoint.Y);
 
             Canvas.SetLeft(SelectionRect, x);
             Canvas.SetTop(SelectionRect, y);
             SelectionRect.Width  = w;
             SelectionRect.Height = h;
 
+            // Label below the box
             Canvas.SetLeft(SizeLabel, x + 4);
-            Canvas.SetTop(SizeLabel, y + 4);
+            Canvas.SetTop(SizeLabel, Math.Max(0, y - 24));
             SizeLabel.Text = $"{(int)w} × {(int)h}";
         }
 
         private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (!_isDragging) return;
-
             _isDragging = false;
             MainCanvas.ReleaseMouseCapture();
 
@@ -74,24 +95,23 @@ namespace VedionScreenShare
 
             if (w < 10 || h < 10)
             {
-                // Too small — ignore
+                // Too small, reset
                 SelectionRect.Visibility = Visibility.Collapsed;
-                SizeLabel.Visibility = Visibility.Collapsed;
-                HintText.Visibility = Visibility.Visible;
-                _isDragging = false;
+                SizeLabel.Visibility     = Visibility.Collapsed;
+                HintBorder.Visibility    = Visibility.Visible;
                 return;
             }
 
-            // Account for DPI scaling
-            double dpiScale = PresentationSource.FromVisual(this)
+            // Account for DPI
+            double dpi = PresentationSource.FromVisual(this)
                 ?.CompositionTarget?.TransformToDevice.M11 ?? 1.0;
 
             SelectedRegion = new CaptureArea
             {
-                X      = (int)(x * dpiScale),
-                Y      = (int)(y * dpiScale),
-                Width  = (int)(w * dpiScale),
-                Height = (int)(h * dpiScale)
+                X      = (int)(x * dpi),
+                Y      = (int)(y * dpi),
+                Width  = (int)(w * dpi),
+                Height = (int)(h * dpi)
             };
 
             WasConfirmed = true;

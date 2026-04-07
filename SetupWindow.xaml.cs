@@ -76,14 +76,14 @@ namespace VedionScreenShare
 
         private void PickRegionButton_Click(object sender, RoutedEventArgs e)
         {
-            // Hide setup window, show full-screen selector
-            this.Hide();
-            System.Threading.Thread.Sleep(200); // Let window hide first
+            this.WindowState = WindowState.Minimized;
 
             var selector = new RegionSelectorWindow();
+            selector.Loaded += (_, __) => selector.Focus();
             selector.ShowDialog();
 
-            this.Show();
+            this.WindowState = WindowState.Normal;
+            this.Activate();
 
             if (selector.WasConfirmed && selector.SelectedRegion != null)
             {
