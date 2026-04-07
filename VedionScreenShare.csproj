@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>VedionScreenShare</AssemblyName>
+    <RootNamespace>VedionScreenShare</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>Vedion</Authors>
+    <Company>Vedion</Company>
+    <Product>Vedion Screen Share</Product>
+    <Description>Encrypted background screen-sharing for secure live assistance</Description>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- No external NuGet dependencies needed for this scaffold -->
+    <!-- All encryption, networking, and UI uses .NET built-ins -->
+  </ItemGroup>
+
+  <!-- PostBuild: Create sample config file -->
+  <Target Name="PostBuild" AfterTargets="Build">
+    <Message Text="Build complete: $(OutputPath)VedionScreenShare.exe" Importance="high" />
+  </Target>
+
+</Project>

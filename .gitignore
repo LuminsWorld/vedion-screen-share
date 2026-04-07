@@ -1,0 +1,62 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.exe.config
+
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# ReSharper
+.idea/
+*.DotSettings.user
+
+# Test Results
+TestResults/
+
+# Local environment
+.env
+*.log
+*.log.*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Application data (user configs)
+frames/
+*.json.bak
+
+# NuGet
+packages/
+.nuget/
+
+# Temporary files
+*.tmp
+*~
+.#*
+
+# Config files with sensitive data
+config.local.json
+config.*.json
+
+# Certificates (development only)
+certs/*.pem
+certs/*.key
+certs/*.crt
+
+# Build artifacts
+publish/
+*.zip
+*.msi
