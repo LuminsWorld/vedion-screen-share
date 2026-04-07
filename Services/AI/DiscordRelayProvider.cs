@@ -42,6 +42,8 @@ namespace VedionScreenShare.Services.AI
             if (!response.IsSuccessStatusCode)
             {
                 string error = await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    throw new Exception("Discord webhook URL is invalid (404). Right-click tray → Settings and paste a correct webhook URL.");
                 throw new Exception($"Discord relay error {response.StatusCode}: {error}");
             }
 

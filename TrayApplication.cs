@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 using VedionScreenShare.Models;
 using VedionScreenShare.Services;
@@ -120,7 +121,7 @@ namespace VedionScreenShare
             _statusItem = new ToolStripMenuItem("Status: Starting...") { Enabled = false };
             menu.Items.Add(_statusItem);
 
-            _lastResponseItem = new ToolStripMenuItem("Last response: (none)") { Enabled = false };
+            _lastResponseItem = new ToolStripMenuItem("AI: (none yet)") { Enabled = false };
             menu.Items.Add(_lastResponseItem);
 
             menu.Items.Add(new ToolStripSeparator());
@@ -133,6 +134,34 @@ namespace VedionScreenShare
                 UpdateStatus(_isPaused ? "Paused" : "Active");
             };
             menu.Items.Add(_pauseItem);
+
+            // Settings — reopen setup window
+            var settingsItem = new ToolStripMenuItem("⚙️  Settings...");
+            settingsItem.Click += (s, e) =>
+            {
+                _isPaused = true;
+                _pauseItem.Text = "Resume";
+                UpdateStatus("Paused (configuring)");
+
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    var setup = new SetupWindow();
+                    if (setup.ShowDialog() == true && setup.IsConfigured)
+                    {
+                        // Restart with new config
+                        Stop();
+                        var newApp = new TrayApplication(setup.Config);
+                        newApp.Start();
+                    }
+                    else
+                    {
+                        _isPaused = false;
+                        _pauseItem.Text = "Pause";
+                        UpdateStatus("Active");
+                    }
+                });
+            };
+            menu.Items.Add(settingsItem);
 
             menu.Items.Add(new ToolStripSeparator());
 
