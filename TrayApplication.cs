@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Security.Cryptography;
 using VedionScreenShare.Models;
 using VedionScreenShare.Services;
 
@@ -76,7 +77,7 @@ namespace VedionScreenShare
                 _captureService?.Dispose();
                 _networkService?.Dispose();
 
-                Application.Current?.Shutdown();
+                Environment.Exit(0);
             }
             catch { /* Ignore cleanup errors */ }
         }

@@ -26,12 +26,12 @@ namespace VedionScreenShare.Services
         /// </summary>
         public static string GenerateKey()
         {
-            using (var rng = new RNGCryptoServiceProvider())
+            byte[] key = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
             {
-                byte[] key = new byte[32];
                 rng.GetBytes(key);
-                return Convert.ToBase64String(key);
             }
+            return Convert.ToBase64String(key);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace VedionScreenShare.Services
         /// </summary>
         public (string ciphertext, string iv) Encrypt(byte[] plaintext)
         {
-            using (var aes = new AesCryptoServiceProvider())
+            using (var aes = Aes.Create())
             {
                 aes.Key = _key;
                 aes.Mode = CipherMode.CBC;
@@ -66,7 +66,7 @@ namespace VedionScreenShare.Services
             byte[] ciphertext = Convert.FromBase64String(base64Ciphertext);
             byte[] iv = Convert.FromBase64String(base64Iv);
 
-            using (var aes = new AesCryptoServiceProvider())
+            using (var aes = Aes.Create())
             {
                 aes.Key = _key;
                 aes.IV = iv;
