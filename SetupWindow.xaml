@@ -162,13 +162,61 @@
                                      Content="📸  Snapshot — only send when hotkey pressed (Ctrl+Shift+S)"
                                      Margin="0,0,0,16"/>
 
-                        <!-- Hotkeys info -->
+                        <!-- Hotkey customization -->
                         <Border Background="#f7fafc" BorderBrush="#e2e8f0" BorderThickness="1"
-                                Padding="10" CornerRadius="4" Margin="0,0,0,16">
+                                Padding="12" CornerRadius="4" Margin="0,0,0,16">
                             <StackPanel>
-                                <TextBlock Text="⌨️  Hotkeys (always active)" FontWeight="SemiBold" Margin="0,0,0,6"/>
-                                <TextBlock Text="Ctrl + Shift + P  →  Pause / Resume" FontSize="11" Foreground="#444" Margin="0,0,0,3"/>
-                                <TextBlock Text="Ctrl + Shift + S  →  Take snapshot (snapshot mode)" FontSize="11" Foreground="#444"/>
+                                <TextBlock Text="⌨️  Hotkeys" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                <TextBlock Text="Click a field then press your key combination:" FontSize="11" Foreground="#666" Margin="0,0,0,10"/>
+
+                                <!-- Pause/Resume hotkey -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="70"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Pause / Resume:" VerticalAlignment="Center" FontSize="11"/>
+                                    <TextBox x:Name="HotkeyPauseBox"
+                                             Grid.Column="1"
+                                             Height="28" Padding="6,4"
+                                             FontSize="11" Background="White" BorderBrush="#ccc"
+                                             IsReadOnly="True" Cursor="Hand"
+                                             Text="Ctrl + Shift + P"
+                                             PreviewKeyDown="HotkeyBox_PreviewKeyDown"
+                                             GotFocus="HotkeyBox_GotFocus"
+                                             LostFocus="HotkeyBox_LostFocus"
+                                             Tag="pause"/>
+                                    <Button Grid.Column="2" Content="Reset" Margin="6,0,0,0"
+                                            FontSize="10" Padding="4,4"
+                                            Click="ResetPauseHotkey_Click"/>
+                                </Grid>
+
+                                <!-- Snapshot hotkey -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="70"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Take Snapshot:" VerticalAlignment="Center" FontSize="11"/>
+                                    <TextBox x:Name="HotkeySnapBox"
+                                             Grid.Column="1"
+                                             Height="28" Padding="6,4"
+                                             FontSize="11" Background="White" BorderBrush="#ccc"
+                                             IsReadOnly="True" Cursor="Hand"
+                                             Text="Ctrl + Shift + S"
+                                             PreviewKeyDown="HotkeyBox_PreviewKeyDown"
+                                             GotFocus="HotkeyBox_GotFocus"
+                                             LostFocus="HotkeyBox_LostFocus"
+                                             Tag="snap"/>
+                                    <Button Grid.Column="2" Content="Reset" Margin="6,0,0,0"
+                                            FontSize="10" Padding="4,4"
+                                            Click="ResetSnapHotkey_Click"/>
+                                </Grid>
+
+                                <TextBlock Text="💡 Click a field, then press any combo (e.g. Alt+F1, Ctrl+Space)"
+                                           FontSize="10" Foreground="#888" Margin="0,8,0,0"/>
                             </StackPanel>
                         </Border>
 
