@@ -20,6 +20,7 @@ namespace VedionScreenShare
 
         private void AiProviderCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (VedionPanel == null) return; // Not initialized yet — ignore
             if (AiProviderCombo.SelectedItem is not ComboBoxItem item) return;
 
             string tag = item.Tag?.ToString() ?? "";
