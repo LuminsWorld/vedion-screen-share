@@ -114,7 +114,7 @@
                             <TextBlock Text="Capture Interval: " FontWeight="SemiBold"/>
                             <TextBlock x:Name="IntervalLabel" Text="2000ms" Foreground="#666"/>
                         </StackPanel>
-                        <Slider x:Name="IntervalSlider" Minimum="500" Maximum="10000" Value="2000"
+                        <Slider x:Name="IntervalSlider" Minimum="500" Maximum="30000" Value="2000"
                                 TickFrequency="500" IsSnapToTickEnabled="True" Margin="0,0,0,16"/>
 
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
@@ -123,6 +123,25 @@
                         </StackPanel>
                         <Slider x:Name="QualitySlider" Minimum="40" Maximum="95" Value="75"
                                 TickFrequency="5" IsSnapToTickEnabled="True" Margin="0,0,0,16"/>
+
+                        <!-- Capture Region -->
+                        <TextBlock Text="Capture Region:" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <RadioButton x:Name="FullScreenRadio" Content="Full screen" IsChecked="True"
+                                     Margin="0,0,0,6" Checked="FullScreenRadio_Checked"/>
+                        <RadioButton x:Name="CustomRegionRadio" Content="Custom region"
+                                     Margin="0,0,0,8" Checked="CustomRegionRadio_Checked"/>
+
+                        <!-- Region controls -->
+                        <StackPanel x:Name="RegionPanel" Visibility="Collapsed" Margin="0,0,0,16">
+                            <Button x:Name="PickRegionButton"
+                                    Content="🖱️  Draw Region on Screen"
+                                    Padding="10,6" Width="200" HorizontalAlignment="Left"
+                                    Background="#007ACC" Foreground="White"
+                                    Click="PickRegionButton_Click" Margin="0,0,0,8"/>
+                            <TextBlock x:Name="RegionLabel"
+                                       Text="No region selected — click above to draw one"
+                                       FontSize="11" Foreground="#666"/>
+                        </StackPanel>
 
                         <CheckBox x:Name="AutoStartCheck" Content="Auto-start capturing on launch" Margin="0,0,0,8"/>
                         <CheckBox x:Name="MinimizeCheck" Content="Minimize to tray on start" IsChecked="True"/>
