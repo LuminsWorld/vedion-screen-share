@@ -4,129 +4,134 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Vedion Screen Share - Setup"
-    Height="560"
-    Width="600"
+    Height="600"
+    Width="620"
     WindowStartupLocation="CenterScreen"
     ResizeMode="NoResize"
     Background="#F5F5F5">
 
-    <DockPanel Margin="30">
+    <DockPanel Margin="20">
 
-        <!-- Buttons pinned to bottom -->
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,20,0,0">
-            <Button 
-                x:Name="CancelButton"
-                Content="Cancel"
-                Padding="16,8"
-                Margin="0,0,10,0"
-                Background="#f0f0f0"
-                Foreground="#1a1a1a"
-                BorderBrush="#ccc"
-                Click="CancelButton_Click"/>
-            <Button 
-                x:Name="StartButton"
-                Content="Start Sharing"
-                Padding="16,8"
-                Background="#28a745"
-                Foreground="White"
-                FontWeight="Bold"
-                Click="StartButton_Click"/>
+        <!-- Bottom buttons -->
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,16,0,0">
+            <Button x:Name="CancelButton" Content="Cancel" Padding="16,8" Margin="0,0,10,0"
+                    Background="#f0f0f0" Foreground="#333" BorderBrush="#ccc" Click="CancelButton_Click"/>
+            <Button x:Name="StartButton" Content="▶  Start Sharing" Padding="16,8"
+                    Background="#28a745" Foreground="White" FontWeight="Bold" Click="StartButton_Click"/>
         </StackPanel>
 
-        <!-- Scrollable content -->
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel>
+        <!-- Header -->
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+            <TextBlock Text="Vedion Screen Share" FontSize="22" FontWeight="Bold" Foreground="#1a1a1a"/>
+            <TextBlock Text="Configure your screen sharing and AI connection below."
+                       FontSize="12" Foreground="#666" Margin="0,4,0,0"/>
+        </StackPanel>
 
-                <!-- Header -->
-                <TextBlock 
-                    Text="Vedion Screen Share Setup"
-                    FontSize="24"
-                    FontWeight="Bold"
-                    Foreground="#1a1a1a"
-                    Margin="0,0,0,8"/>
-                <TextBlock 
-                    Text="This application will record your screen and send encrypted frames for live assistance."
-                    FontSize="12"
-                    Foreground="#666"
-                    TextWrapping="Wrap"
-                    Margin="0,0,0,20"/>
+        <!-- Tabs -->
+        <TabControl>
 
-                <!-- Disclosure -->
-                <Border BorderBrush="#ddd" BorderThickness="1" Background="#fff9e6" Padding="15" CornerRadius="4" Margin="0,0,0,20">
+            <!-- ── AI Tab ── -->
+            <TabItem Header="🤖  AI Provider">
+                <ScrollViewer Margin="10" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock Text="⚠️ What This Does" FontWeight="Bold" Margin="0,0,0,8"/>
-                        <TextBlock 
-                            Text="✓ Records your screen at regular intervals&#x0a;✓ Encrypts all frames with AES-256&#x0a;✓ Sends encrypted data to the configured endpoint&#x0a;✓ Runs in the background with minimal interference&#x0a;✓ Shows status in system tray"
-                            FontSize="11"
-                            Foreground="#333"
-                            TextWrapping="Wrap"
-                            LineHeight="20"/>
+
+                        <TextBlock Text="Choose your AI provider:" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                        <!-- Provider selector -->
+                        <ComboBox x:Name="AiProviderCombo" Height="32" Margin="0,0,0,16"
+                                  SelectionChanged="AiProviderCombo_SelectionChanged">
+                            <ComboBoxItem Tag="VedionDiscord"  Content="⭐  Vedion (Discord) — Free, no API key needed" IsSelected="True"/>
+                            <ComboBoxItem Tag="Gemini"         Content="🔷  Google Gemini — Free tier available"/>
+                            <ComboBoxItem Tag="Anthropic"      Content="🟠  Anthropic Claude"/>
+                            <ComboBoxItem Tag="OpenAi"         Content="🟢  OpenAI (GPT-4o)"/>
+                            <ComboBoxItem Tag="Groq"           Content="⚡  Groq — Fast, free tier"/>
+                            <ComboBoxItem Tag="Ollama"         Content="🖥️  Ollama — Local, 100% free"/>
+                        </ComboBox>
+
+                        <!-- Vedion Discord panel -->
+                        <StackPanel x:Name="VedionPanel">
+                            <Border Background="#e8f4fd" BorderBrush="#bee3f8" BorderThickness="1" Padding="12" CornerRadius="4" Margin="0,0,0,12">
+                                <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="#2c5282">
+                                    <Run FontWeight="Bold">How it works:</Run>
+                                    <Run>Your screen posts to a private Discord channel. Vedion sees it and responds there. Free, no API key required.</Run>
+                                </TextBlock>
+                            </Border>
+                            <TextBlock Text="Discord Webhook URL:" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBox x:Name="DiscordWebhookInput" Height="32" Padding="8,6"
+                                     FontSize="11" Background="White" BorderBrush="#ccc"
+                                     Text="https://discord.com/api/webhooks/..."/>
+                            <TextBlock Margin="0,6,0,0" FontSize="11" Foreground="#666"
+                                       Text="Get this from: Discord channel → Edit → Integrations → Webhooks → New Webhook → Copy URL"/>
+                        </StackPanel>
+
+                        <!-- API key panel (all other providers) -->
+                        <StackPanel x:Name="ApiKeyPanel" Visibility="Collapsed">
+                            <TextBlock x:Name="ApiKeyLabel" Text="API Key:" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBox x:Name="ApiKeyInput" Height="32" Padding="8,6"
+                                     FontSize="11" Background="White" BorderBrush="#ccc"/>
+                            <TextBlock x:Name="ApiKeyHint" Margin="0,6,0,12" FontSize="11" Foreground="#666"/>
+
+                            <TextBlock Text="Model (optional, leave blank for default):" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBox x:Name="ModelInput" Height="32" Padding="8,6"
+                                     FontSize="11" Background="White" BorderBrush="#ccc"/>
+                        </StackPanel>
+
+                        <!-- Ollama endpoint override -->
+                        <StackPanel x:Name="OllamaPanel" Visibility="Collapsed" Margin="0,8,0,0">
+                            <TextBlock Text="Ollama Endpoint:" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBox x:Name="OllamaEndpointInput" Height="32" Padding="8,6"
+                                     FontSize="11" Background="White" BorderBrush="#ccc"
+                                     Text="http://localhost:11434/v1"/>
+                            <TextBlock Text="Install Ollama from ollama.com — completely free and local."
+                                       Margin="0,6,0,0" FontSize="11" Foreground="#666"/>
+                        </StackPanel>
+
+                        <!-- System prompt -->
+                        <TextBlock Text="System Prompt:" FontWeight="SemiBold" Margin="0,16,0,4"/>
+                        <TextBox x:Name="SystemPromptInput" Height="70" Padding="8,6"
+                                 FontSize="11" Background="White" BorderBrush="#ccc"
+                                 TextWrapping="Wrap" AcceptsReturn="True"
+                                 Text="You are a helpful assistant. The user is sharing their screen with you. Describe what you see and help them with anything you notice."/>
+
                     </StackPanel>
-                </Border>
+                </ScrollViewer>
+            </TabItem>
 
-                <!-- Endpoint -->
-                <TextBlock Text="Endpoint URL (WebSocket)" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                <TextBox 
-                    x:Name="EndpointInput"
-                    Height="32"
-                    Padding="8,6"
-                    FontSize="11"
-                    Text="wss://vedion.example.com/screen"
-                    Background="White"
-                    BorderBrush="#ccc"
-                    Margin="0,0,0,16"/>
+            <!-- ── Capture Tab ── -->
+            <TabItem Header="📸  Capture">
+                <ScrollViewer Margin="10" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
 
-                <!-- Encryption Key -->
-                <TextBlock Text="Encryption Key (Base64)" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                <Button 
-                    x:Name="GenerateKeyButton"
-                    Content="Generate New"
-                    Padding="8,4"
-                    FontSize="10"
-                    Background="#007ACC"
-                    Foreground="White"
-                    Width="120"
-                    HorizontalAlignment="Left"
-                    Click="GenerateKeyButton_Click"
-                    Margin="0,0,0,6"/>
-                <TextBox 
-                    x:Name="KeyInput"
-                    Height="32"
-                    Padding="8,6"
-                    FontSize="10"
-                    Background="White"
-                    BorderBrush="#ccc"
-                    Margin="0,0,0,16"/>
+                        <TextBlock Text="Encryption Key:" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <Button x:Name="GenerateKeyButton" Content="Generate New Key" Padding="8,4"
+                                FontSize="10" Background="#007ACC" Foreground="White"
+                                Width="140" HorizontalAlignment="Left"
+                                Click="GenerateKeyButton_Click" Margin="0,0,0,6"/>
+                        <TextBox x:Name="KeyInput" Height="32" Padding="8,6"
+                                 FontSize="10" Background="White" BorderBrush="#ccc" Margin="0,0,0,16"/>
 
-                <!-- Capture Interval -->
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                    <TextBlock Text="Capture Interval: " FontWeight="SemiBold"/>
-                    <TextBlock x:Name="IntervalLabel" Text="1000ms" Foreground="#666"/>
-                </StackPanel>
-                <Slider 
-                    x:Name="IntervalSlider"
-                    Minimum="500"
-                    Maximum="5000"
-                    Value="1000"
-                    TickFrequency="500"
-                    IsSnapToTickEnabled="True"
-                    Margin="0,0,0,16"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="Capture Interval: " FontWeight="SemiBold"/>
+                            <TextBlock x:Name="IntervalLabel" Text="2000ms" Foreground="#666"/>
+                        </StackPanel>
+                        <Slider x:Name="IntervalSlider" Minimum="500" Maximum="10000" Value="2000"
+                                TickFrequency="500" IsSnapToTickEnabled="True" Margin="0,0,0,16"/>
 
-                <!-- JPEG Quality -->
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                    <TextBlock Text="Image Quality: " FontWeight="SemiBold"/>
-                    <TextBlock x:Name="QualityLabel" Text="75%" Foreground="#666"/>
-                </StackPanel>
-                <Slider 
-                    x:Name="QualitySlider"
-                    Minimum="40"
-                    Maximum="95"
-                    Value="75"
-                    TickFrequency="5"
-                    IsSnapToTickEnabled="True"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="Image Quality: " FontWeight="SemiBold"/>
+                            <TextBlock x:Name="QualityLabel" Text="75%" Foreground="#666"/>
+                        </StackPanel>
+                        <Slider x:Name="QualitySlider" Minimum="40" Maximum="95" Value="75"
+                                TickFrequency="5" IsSnapToTickEnabled="True" Margin="0,0,0,16"/>
 
-            </StackPanel>
-        </ScrollViewer>
+                        <CheckBox x:Name="AutoStartCheck" Content="Auto-start capturing on launch" Margin="0,0,0,8"/>
+                        <CheckBox x:Name="MinimizeCheck" Content="Minimize to tray on start" IsChecked="True"/>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+        </TabControl>
 
     </DockPanel>
 </Window>

@@ -1,195 +1,172 @@
 using System;
 using System.Drawing;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Security.Cryptography;
 using VedionScreenShare.Models;
 using VedionScreenShare.Services;
+using VedionScreenShare.Services.AI;
 
 namespace VedionScreenShare
 {
-    /// <summary>
-    /// Main application that runs in system tray and manages screen capture/transmission
-    /// </summary>
     public class TrayApplication : IDisposable
     {
-        private readonly CaptureConfig _config;
+        private readonly AppConfig _config;
         private NotifyIcon _trayIcon;
         private bool _isRunning = false;
         private bool _isPaused = false;
-        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource _cts;
 
         private ScreenCaptureService _captureService;
         private EncryptionService _encryptionService;
-        private NetworkService _networkService;
+        private IAiProvider _aiProvider;
 
-        public TrayApplication(CaptureConfig config)
+        private ToolStripMenuItem _statusItem;
+        private ToolStripMenuItem _pauseItem;
+        private ToolStripMenuItem _lastResponseItem;
+
+        public TrayApplication(AppConfig config)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
         }
 
-        /// <summary>
-        /// Start the tray application
-        /// </summary>
         public async void Start()
         {
             try
             {
                 _isRunning = true;
-                _cancellationTokenSource = new CancellationTokenSource();
+                _cts = new CancellationTokenSource();
 
-                // Initialize services
-                _captureService = new ScreenCaptureService(_config.JpegQuality);
+                _captureService    = new ScreenCaptureService(_config.JpegQuality);
                 _encryptionService = new EncryptionService(_config.EncryptionKey);
-                _networkService = new NetworkService(_config.EndpointUrl);
+                _aiProvider        = AiProviderFactory.Create(_config);
 
-                // Setup tray icon
                 SetupTrayIcon();
-
-                // Connect to server
-                await _networkService.ConnectAsync();
-
-                // Start capture loop
                 _ = CaptureLoopAsync();
             }
             catch (Exception ex)
             {
-                ShowNotification($"Error: {ex.Message}", ToolTipIcon.Error);
+                ShowNotification($"Startup error: {ex.Message}", ToolTipIcon.Error);
                 Stop();
             }
         }
 
-        /// <summary>
-        /// Stop the application
-        /// </summary>
         public async void Stop()
         {
             try
             {
                 _isRunning = false;
-                _cancellationTokenSource?.Cancel();
-
-                if (_networkService?.IsConnected == true)
-                    await _networkService.DisconnectAsync();
-
+                _cts?.Cancel();
                 _trayIcon?.Dispose();
                 _captureService?.Dispose();
-                _networkService?.Dispose();
-
+            }
+            catch { }
+            finally
+            {
                 Environment.Exit(0);
             }
-            catch { /* Ignore cleanup errors */ }
         }
 
-        /// <summary>
-        /// Main capture loop
-        /// </summary>
         private async Task CaptureLoopAsync()
         {
-            ShowNotification("Screen sharing started", ToolTipIcon.Info);
+            ShowNotification($"Sharing started — AI: {_aiProvider.Name}", ToolTipIcon.Info);
+            UpdateStatus("Active");
 
-            while (_isRunning && !_cancellationTokenSource.Token.IsCancellationRequested)
+            while (_isRunning && !_cts.Token.IsCancellationRequested)
             {
                 try
                 {
-                    if (!_isPaused && _networkService.IsConnected)
+                    if (!_isPaused)
                     {
-                        // Capture screen
+                        // Capture
                         var (jpegData, width, height) = _config.CaptureArea != null
                             ? _captureService.CaptureArea(
-                                _config.CaptureArea.X,
-                                _config.CaptureArea.Y,
-                                _config.CaptureArea.Width,
-                                _config.CaptureArea.Height)
+                                _config.CaptureArea.X, _config.CaptureArea.Y,
+                                _config.CaptureArea.Width, _config.CaptureArea.Height)
                             : _captureService.CaptureScreen();
 
-                        // Encrypt frame
-                        var (ciphertext, iv) = _encryptionService.Encrypt(jpegData);
-
-                        // Create packet
-                        var packet = new FramePacket
+                        // Send to AI
+                        if (_config.SendToAi && _aiProvider.IsConfigured)
                         {
-                            EncryptedData = ciphertext,
-                            Iv = iv,
-                            Width = width,
-                            Height = height
-                        };
-
-                        // Send to server
-                        await _networkService.SendFrameAsync(packet);
+                            string response = await _aiProvider.AnalyzeFrameAsync(jpegData, _config.SystemPrompt);
+                            UpdateLastResponse(response);
+                        }
                     }
 
-                    // Wait for next capture interval
-                    await Task.Delay(_config.CaptureIntervalMs, _cancellationTokenSource.Token);
+                    await Task.Delay(_config.CaptureIntervalMs, _cts.Token);
                 }
-                catch (TaskCanceledException)
-                {
-                    // Expected when cancellation token is cancelled
-                    break;
-                }
+                catch (TaskCanceledException) { break; }
                 catch (Exception ex)
                 {
-                    ShowNotification($"Capture error: {ex.Message}", ToolTipIcon.Warning);
-                    await Task.Delay(1000); // Back off briefly
+                    ShowNotification($"Error: {ex.Message}", ToolTipIcon.Warning);
+                    await Task.Delay(3000);
                 }
             }
 
-            ShowNotification("Screen sharing stopped", ToolTipIcon.Info);
+            ShowNotification("Screen sharing stopped.", ToolTipIcon.Info);
         }
 
-        /// <summary>
-        /// Setup system tray icon and context menu
-        /// </summary>
         private void SetupTrayIcon()
         {
-            _trayIcon = new NotifyIcon();
-            _trayIcon.Icon = SystemIcons.Application;
-            _trayIcon.Text = "Vedion Screen Share";
-            _trayIcon.Visible = true;
+            _trayIcon = new NotifyIcon
+            {
+                Icon    = SystemIcons.Application,
+                Text    = "Vedion Screen Share",
+                Visible = true
+            };
 
-            // Context menu
-            var contextMenu = new ContextMenuStrip();
+            var menu = new ContextMenuStrip();
 
-            var statusItem = new ToolStripMenuItem("Status: Active");
-            contextMenu.Items.Add(statusItem);
+            _statusItem = new ToolStripMenuItem("Status: Starting...") { Enabled = false };
+            menu.Items.Add(_statusItem);
 
-            contextMenu.Items.Add(new ToolStripSeparator());
+            _lastResponseItem = new ToolStripMenuItem("Last response: (none)") { Enabled = false };
+            menu.Items.Add(_lastResponseItem);
 
-            var pauseItem = new ToolStripMenuItem("Pause");
-            pauseItem.Click += (s, e) =>
+            menu.Items.Add(new ToolStripSeparator());
+
+            _pauseItem = new ToolStripMenuItem("Pause");
+            _pauseItem.Click += (s, e) =>
             {
                 _isPaused = !_isPaused;
-                pauseItem.Text = _isPaused ? "Resume" : "Pause";
-                statusItem.Text = _isPaused ? "Status: Paused" : "Status: Active";
+                _pauseItem.Text = _isPaused ? "Resume" : "Pause";
+                UpdateStatus(_isPaused ? "Paused" : "Active");
             };
-            contextMenu.Items.Add(pauseItem);
+            menu.Items.Add(_pauseItem);
 
-            contextMenu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add(new ToolStripSeparator());
+
+            var providerItem = new ToolStripMenuItem($"AI: {_aiProvider?.Name ?? "None"}") { Enabled = false };
+            menu.Items.Add(providerItem);
+
+            menu.Items.Add(new ToolStripSeparator());
 
             var exitItem = new ToolStripMenuItem("Exit");
             exitItem.Click += (s, e) => Stop();
-            contextMenu.Items.Add(exitItem);
+            menu.Items.Add(exitItem);
 
-            _trayIcon.ContextMenuStrip = contextMenu;
+            _trayIcon.ContextMenuStrip = menu;
         }
 
-        /// <summary>
-        /// Show a balloon notification in system tray
-        /// </summary>
+        private void UpdateStatus(string status)
+        {
+            if (_statusItem != null)
+                _statusItem.Text = $"Status: {status}";
+        }
+
+        private void UpdateLastResponse(string response)
+        {
+            if (_lastResponseItem == null) return;
+            string truncated = response.Length > 60 ? response[..60] + "..." : response;
+            _lastResponseItem.Text = $"AI: {truncated}";
+        }
+
         private void ShowNotification(string message, ToolTipIcon icon = ToolTipIcon.Info)
         {
-            try
-            {
-                _trayIcon?.ShowBalloonTip(5000, "Vedion", message, icon);
-            }
-            catch { /* Ignore notification errors */ }
+            try { _trayIcon?.ShowBalloonTip(5000, "Vedion", message, icon); }
+            catch { }
         }
 
-        public void Dispose()
-        {
-            Stop();
-        }
+        public void Dispose() => Stop();
     }
 }

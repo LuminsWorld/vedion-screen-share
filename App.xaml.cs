@@ -10,24 +10,21 @@ namespace VedionScreenShare
         {
             base.OnStartup(e);
 
-            // Show setup wizard
-            var setupWindow = new SetupWindow();
-            if (setupWindow.ShowDialog() == true)
+            var setup = new SetupWindow();
+            if (setup.ShowDialog() == true)
             {
-                // Start tray application with config
-                _trayApp = new TrayApplication(setupWindow.Config);
+                _trayApp = new TrayApplication(setup.Config);
                 _trayApp.Start();
             }
             else
             {
-                // User cancelled setup
                 Shutdown();
             }
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            _trayApp?.Stop();
+            _trayApp?.Dispose();
             base.OnExit(e);
         }
     }
