@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace VedionScreenShare.Services
@@ -63,24 +64,34 @@ namespace VedionScreenShare.Services
         }
 
         /// <summary>
-        /// Convert Bitmap to JPEG byte array with quality setting
+        /// Convert Bitmap to clean JPEG byte array — no EXIF, no metadata, no location data.
+        /// We draw onto a brand-new Bitmap so GDI+ has zero PropertyItems to copy.
         /// </summary>
-        private byte[] BitmapToJpeg(Bitmap bitmap)
+        private byte[] BitmapToJpeg(Bitmap source)
         {
-            using (var ms = new MemoryStream())
+            // Create a completely fresh bitmap — this guarantees no metadata is carried over
+            using (var clean = new Bitmap(source.Width, source.Height, PixelFormat.Format24bppRgb))
             {
-                var encoderParams = new EncoderParameters(1);
-                encoderParams.Param[0] = new EncoderParameter(
-                    Encoder.Quality,
-                    _jpegQuality
-                );
+                using (var g = Graphics.FromImage(clean))
+                {
+                    g.DrawImage(source, 0, 0, source.Width, source.Height);
+                }
 
-                var jpegCodec = GetEncoderInfo("image/jpeg");
-                if (jpegCodec == null)
-                    throw new InvalidOperationException("JPEG codec not found");
+                // Verify: no PropertyItems survive on a new Bitmap
+                // (GDI+ only copies them if you load from file, not when you draw)
 
-                bitmap.Save(ms, jpegCodec, encoderParams);
-                return ms.ToArray();
+                using (var ms = new MemoryStream())
+                {
+                    var encoderParams = new EncoderParameters(1);
+                    encoderParams.Param[0] = new EncoderParameter(Encoder.Quality, _jpegQuality);
+
+                    var jpegCodec = GetEncoderInfo("image/jpeg");
+                    if (jpegCodec == null)
+                        throw new InvalidOperationException("JPEG codec not found");
+
+                    clean.Save(ms, jpegCodec, encoderParams);
+                    return ms.ToArray();
+                }
             }
         }
 
