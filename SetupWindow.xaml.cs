@@ -57,8 +57,8 @@ namespace VedionScreenShare
             MinimizeCheck.IsChecked    = c.MinimizeToTray;
 
             // Mode
-            ContinuousModeRadio.IsChecked = c.CaptureMode == CaptureMode.Continuous;
-            SnapshotModeRadio.IsChecked   = c.CaptureMode == CaptureMode.Snapshot;
+            ContinuousModeRadio.IsChecked = c.CaptureMode == Models.CaptureMode.Continuous;
+            SnapshotModeRadio.IsChecked   = c.CaptureMode == Models.CaptureMode.Snapshot;
 
             // Hotkeys
             _pauseMod = c.HotkeyPauseMod; _pauseKey = c.HotkeyPauseKey;
@@ -271,7 +271,7 @@ namespace VedionScreenShare
                 CaptureIntervalMs       = (int)IntervalSlider.Value,
                 JpegQuality             = (int)QualitySlider.Value,
                 CaptureArea             = _selectedRegion,
-                CaptureMode             = SnapshotModeRadio.IsChecked == true ? CaptureMode.Snapshot : CaptureMode.Continuous,
+                CaptureMode             = SnapshotModeRadio.IsChecked == true ? Models.CaptureMode.Snapshot : Models.CaptureMode.Continuous,
                 HotkeyPauseMod          = _pauseMod,
                 HotkeyPauseKey          = _pauseKey,
                 HotkeySnapMod           = _snapMod,
