@@ -11,10 +11,10 @@
     Background="#F5F5F5">
     
     <Grid Margin="30">
-        <StackPanel VerticalAlignment="Top" Spacing="20">
+        <StackPanel VerticalAlignment="Top">
             
             <!-- Header -->
-            <StackPanel>
+            <StackPanel Margin="0,0,0,20">
                 <TextBlock 
                     Text="Vedion Screen Share Setup"
                     FontSize="24"
@@ -29,7 +29,7 @@
             </StackPanel>
 
             <!-- Disclosure -->
-            <Border BorderBrush="#ddd" BorderThickness="1" Background="#fff9e6" Padding="15" CornerRadius="4">
+            <Border BorderBrush="#ddd" BorderThickness="1" Background="#fff9e6" Padding="15" CornerRadius="4" Margin="0,0,0,20">
                 <StackPanel>
                     <TextBlock Text="⚠️ What This Does" FontWeight="Bold" Margin="0,0,0,8"/>
                     <TextBlock 
@@ -42,11 +42,11 @@
             </Border>
 
             <!-- Configuration -->
-            <StackPanel Spacing="12">
+            <StackPanel>
                 
                 <!-- Endpoint -->
-                <StackPanel Spacing="4">
-                    <TextBlock Text="Endpoint URL (WebSocket)" FontWeight="SemiBold"/>
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Endpoint URL (WebSocket)" FontWeight="SemiBold" Margin="0,0,0,4"/>
                     <TextBox 
                         x:Name="EndpointInput"
                         Height="32"
@@ -58,9 +58,9 @@
                 </StackPanel>
 
                 <!-- Encryption Key -->
-                <StackPanel Spacing="4">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Text="Encryption Key (Base64)" FontWeight="SemiBold"/>
+                <StackPanel Margin="0,0,0,12">
+                    <StackPanel Margin="0,0,0,4">
+                        <TextBlock Text="Encryption Key (Base64)" FontWeight="SemiBold" Margin="0,0,8,0"/>
                         <Button 
                             x:Name="GenerateKeyButton"
                             Content="Generate New"
@@ -68,7 +68,10 @@
                             FontSize="10"
                             Background="#007ACC"
                             Foreground="White"
-                            Click="GenerateKeyButton_Click"/>
+                            Click="GenerateKeyButton_Click"
+                            Width="120"
+                            HorizontalAlignment="Left"
+                            Margin="0,0,0,4"/>
                     </StackPanel>
                     <TextBox 
                         x:Name="KeyInput"
@@ -82,10 +85,10 @@
                 </StackPanel>
 
                 <!-- Capture Interval -->
-                <StackPanel Spacing="4">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBlock Text="Capture Interval (ms):" FontWeight="SemiBold"/>
-                        <TextBlock x:Name="IntervalLabel" Text="1000" Foreground="#666"/>
+                <StackPanel Margin="0,0,0,12">
+                    <StackPanel Margin="0,0,0,4">
+                        <TextBlock Text="Capture Interval (ms):" FontWeight="SemiBold" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="IntervalLabel" Text="1000" Foreground="#666" Margin="0,0,0,4"/>
                     </StackPanel>
                     <Slider 
                         x:Name="IntervalSlider"
@@ -98,10 +101,10 @@
                 </StackPanel>
 
                 <!-- JPEG Quality -->
-                <StackPanel Spacing="4">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <TextBlock Text="Image Quality:" FontWeight="SemiBold"/>
-                        <TextBlock x:Name="QualityLabel" Text="75%" Foreground="#666"/>
+                <StackPanel>
+                    <StackPanel Margin="0,0,0,4">
+                        <TextBlock Text="Image Quality:" FontWeight="SemiBold" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="QualityLabel" Text="75%" Foreground="#666" Margin="0,0,0,4"/>
                     </StackPanel>
                     <Slider 
                         x:Name="QualitySlider"
@@ -120,8 +123,7 @@
         <!-- Buttons -->
         <StackPanel 
             VerticalAlignment="Bottom"
-            Orientation="Horizontal"
-            Spacing="10">
+            Orientation="Horizontal">
             <Button 
                 x:Name="CancelButton"
                 Content="Cancel"
@@ -129,7 +131,8 @@
                 Background="#f0f0f0"
                 Foreground="#1a1a1a"
                 BorderBrush="#ccc"
-                Click="CancelButton_Click"/>
+                Click="CancelButton_Click"
+                Margin="0,0,10,0"/>
             <Button 
                 x:Name="StartButton"
                 Content="Start Sharing"
