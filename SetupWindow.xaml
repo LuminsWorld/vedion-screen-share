@@ -56,12 +56,6 @@
                                     <Run>Your screen posts to a private Discord channel. Vedion sees it and responds there. Free, no API key required.</Run>
                                 </TextBlock>
                             </Border>
-                            <TextBlock Text="Discord Webhook URL:" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                            <TextBox x:Name="DiscordWebhookInput" Height="32" Padding="8,6"
-                                     FontSize="11" Background="White" BorderBrush="#ccc"
-                                     Text="https://discord.com/api/webhooks/..."/>
-                            <TextBlock Margin="0,6,0,0" FontSize="11" Foreground="#666"
-                                       Text="Get this from: Discord channel → Edit → Integrations → Webhooks → New Webhook → Copy URL"/>
                         </StackPanel>
 
                         <!-- API key panel (all other providers) -->
@@ -85,6 +79,23 @@
                             <TextBlock Text="Install Ollama from ollama.com — completely free and local."
                                        Margin="0,6,0,0" FontSize="11" Foreground="#666"/>
                         </StackPanel>
+
+                        <!-- Discord response webhook — always shown -->
+                        <Border Background="#f0fff4" BorderBrush="#9ae6b4" BorderThickness="1"
+                                Padding="12" CornerRadius="4" Margin="0,16,0,0">
+                            <StackPanel>
+                                <TextBlock Text="📨  Discord Response Webhook" FontWeight="Bold" Margin="0,0,0,6"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="#276749" Margin="0,0,0,8"
+                                           Text="AI responses will be posted to this Discord channel after each analysis. Works with any AI provider."/>
+                                <TextBox x:Name="DiscordWebhookInput" Height="32" Padding="8,6"
+                                         FontSize="11" Background="White" BorderBrush="#9ae6b4"
+                                         Text="https://discord.com/api/webhooks/..."/>
+                                <TextBlock Margin="0,6,0,4" FontSize="11" Foreground="#666"
+                                           Text="Get from: Discord channel → Edit → Integrations → Webhooks → Copy URL"/>
+                                <CheckBox x:Name="PostImagesCheck" Content="Also post screenshots to Discord (optional)"
+                                          FontSize="11" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
 
                         <!-- System prompt -->
                         <TextBlock Text="System Prompt:" FontWeight="SemiBold" Margin="0,16,0,4"/>

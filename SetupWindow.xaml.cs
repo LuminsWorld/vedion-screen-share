@@ -103,9 +103,10 @@ namespace VedionScreenShare
             var selectedItem = AiProviderCombo.SelectedItem as ComboBoxItem;
             string providerTag = selectedItem?.Tag?.ToString() ?? "VedionDiscord";
 
-            if (providerTag == "VedionDiscord" && string.IsNullOrWhiteSpace(DiscordWebhookInput.Text))
+            if (string.IsNullOrWhiteSpace(DiscordWebhookInput.Text) ||
+                DiscordWebhookInput.Text == "https://discord.com/api/webhooks/...")
             {
-                MessageBox.Show("Please enter a Discord Webhook URL.", "Missing Field", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please enter a Discord Webhook URL for AI responses.", "Missing Field", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -131,19 +132,21 @@ namespace VedionScreenShare
 
             Config = new AppConfig
             {
-                AiProvider         = provider,
-                AiApiKey           = ApiKeyInput.Text.Trim(),
-                AiModel            = ModelInput.Text.Trim(),
-                AiEndpointOverride = OllamaEndpointInput.Text.Trim(),
-                DiscordWebhookUrl  = DiscordWebhookInput.Text.Trim(),
-                SystemPrompt       = SystemPromptInput.Text.Trim(),
-                EncryptionKey      = KeyInput.Text.Trim(),
-                CaptureIntervalMs  = (int)IntervalSlider.Value,
-                JpegQuality        = (int)QualitySlider.Value,
-                CaptureArea        = _selectedRegion,
-                AutoStart          = AutoStartCheck.IsChecked == true,
-                MinimizeToTray     = MinimizeCheck.IsChecked == true,
-                SendToAi           = true
+                AiProvider              = provider,
+                AiApiKey                = ApiKeyInput.Text.Trim(),
+                AiModel                 = ModelInput.Text.Trim(),
+                AiEndpointOverride      = OllamaEndpointInput.Text.Trim(),
+                DiscordWebhookUrl       = DiscordWebhookInput.Text.Trim(),
+                PostResponsesToDiscord  = true,
+                PostImagesToDiscord     = PostImagesCheck.IsChecked == true,
+                SystemPrompt            = SystemPromptInput.Text.Trim(),
+                EncryptionKey           = KeyInput.Text.Trim(),
+                CaptureIntervalMs       = (int)IntervalSlider.Value,
+                JpegQuality             = (int)QualitySlider.Value,
+                CaptureArea             = _selectedRegion,
+                AutoStart               = AutoStartCheck.IsChecked == true,
+                MinimizeToTray          = MinimizeCheck.IsChecked == true,
+                SendToAi                = true
             };
 
             IsConfigured = true;

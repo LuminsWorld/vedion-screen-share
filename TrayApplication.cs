@@ -21,6 +21,7 @@ namespace VedionScreenShare
         private ScreenCaptureService _captureService;
         private EncryptionService _encryptionService;
         private IAiProvider _aiProvider;
+        private DiscordService _discordService;
 
         private ToolStripMenuItem _statusItem;
         private ToolStripMenuItem _pauseItem;
@@ -41,6 +42,7 @@ namespace VedionScreenShare
                 _captureService    = new ScreenCaptureService(_config.JpegQuality);
                 _encryptionService = new EncryptionService(_config.EncryptionKey);
                 _aiProvider        = AiProviderFactory.Create(_config);
+                _discordService    = new DiscordService(_config.DiscordWebhookUrl);
 
                 SetupTrayIcon();
                 _ = CaptureLoopAsync();
@@ -86,11 +88,18 @@ namespace VedionScreenShare
                                 _config.CaptureArea.Width, _config.CaptureArea.Height)
                             : _captureService.CaptureScreen();
 
-                        // Send to AI
+                        // Optionally post screenshot to Discord
+                        if (_config.PostImagesToDiscord && _discordService.IsConfigured)
+                            await _discordService.PostImageAsync(jpegData);
+
+                        // Send to AI and post response to Discord
                         if (_config.SendToAi && _aiProvider.IsConfigured)
                         {
-                            string response = await _aiProvider.AnalyzeFrameAsync(jpegData, _config.SystemPrompt);
-                            UpdateLastResponse(response);
+                            string aiResponse = await _aiProvider.AnalyzeFrameAsync(jpegData, _config.SystemPrompt);
+                            UpdateLastResponse(aiResponse);
+
+                            if (_config.PostResponsesToDiscord && _discordService.IsConfigured)
+                                await _discordService.PostAiResponseAsync(_aiProvider.Name, aiResponse);
                         }
                     }
 

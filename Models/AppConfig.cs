@@ -19,8 +19,10 @@ namespace VedionScreenShare.Models
         public string AiModel { get; set; } = "";
         public string AiEndpointOverride { get; set; } = ""; // for Ollama or custom
 
-        // Vedion Discord relay
+        // Discord — webhook for posting AI responses
         public string DiscordWebhookUrl { get; set; } = "";
+        public bool PostResponsesToDiscord { get; set; } = true;
+        public bool PostImagesToDiscord { get; set; } = false; // optionally also post the screenshot
 
         // Telegram
         public string TelegramBotToken { get; set; } = "";
