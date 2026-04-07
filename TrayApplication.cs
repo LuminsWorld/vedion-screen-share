@@ -16,12 +16,14 @@ namespace VedionScreenShare
         private NotifyIcon _trayIcon;
         private bool _isRunning = false;
         private bool _isPaused = false;
+        private bool _snapshotRequested = false;
         private CancellationTokenSource _cts;
 
         private ScreenCaptureService _captureService;
         private EncryptionService _encryptionService;
         private IAiProvider _aiProvider;
         private DiscordService _discordService;
+        private HotkeyService _hotkeyService;
 
         private ToolStripMenuItem _statusItem;
         private ToolStripMenuItem _pauseItem;
@@ -45,54 +47,92 @@ namespace VedionScreenShare
                 _discordService    = new DiscordService(_config.DiscordWebhookUrl);
 
                 SetupTrayIcon();
+                SetupHotkeys();
                 _ = CaptureLoopAsync();
             }
             catch (Exception ex)
             {
-                ShowNotification($"Startup error: {ex.Message}", ToolTipIcon.Error);
+                MessageBox.Show($"Startup error: {ex.Message}", "Vedion", MessageBoxButton.OK, MessageBoxImage.Error);
                 Stop();
             }
         }
 
-        public async void Stop()
+        private void SetupHotkeys()
+        {
+            try
+            {
+                _hotkeyService = new HotkeyService();
+                _hotkeyService.Register(
+                    _config.HotkeyPauseMod, _config.HotkeyPauseKey,
+                    _config.HotkeySnapMod,  _config.HotkeySnapKey);
+
+                _hotkeyService.OnPauseResumePressed += () =>
+                {
+                    _isPaused = !_isPaused;
+                    if (_pauseItem != null) _pauseItem.Text = _isPaused ? "Resume" : "Pause";
+                    UpdateStatus(_isPaused ? "Paused" : "Active");
+                    ShowNotification(_isPaused ? "⏸ Paused" : "▶ Resumed", ToolTipIcon.Info);
+                };
+
+                _hotkeyService.OnSnapshotPressed += () =>
+                {
+                    if (_config.CaptureMode == CaptureMode.Snapshot || _isPaused)
+                    {
+                        _snapshotRequested = true;
+                        ShowNotification("📸 Snapshot taken", ToolTipIcon.Info);
+                    }
+                };
+            }
+            catch { /* Hotkeys might fail if already registered — non-fatal */ }
+        }
+
+        public void Stop()
         {
             try
             {
                 _isRunning = false;
                 _cts?.Cancel();
+                _hotkeyService?.Dispose();
                 _trayIcon?.Dispose();
                 _captureService?.Dispose();
             }
             catch { }
-            finally
-            {
-                Environment.Exit(0);
-            }
+            finally { Environment.Exit(0); }
         }
 
         private async Task CaptureLoopAsync()
         {
-            ShowNotification($"Sharing started — AI: {_aiProvider.Name}", ToolTipIcon.Info);
+            string modeStr = _config.CaptureMode == CaptureMode.Snapshot
+                ? "Snapshot mode (Ctrl+Shift+S)" : "Live mode";
+            ShowNotification($"Sharing started — {_aiProvider.Name} — {modeStr}", ToolTipIcon.Info);
             UpdateStatus("Active");
 
             while (_isRunning && !_cts.Token.IsCancellationRequested)
             {
                 try
                 {
-                    if (!_isPaused)
+                    bool shouldCapture = false;
+
+                    if (_config.CaptureMode == CaptureMode.Continuous && !_isPaused)
+                        shouldCapture = true;
+
+                    if (_snapshotRequested)
                     {
-                        // Capture
+                        shouldCapture = true;
+                        _snapshotRequested = false;
+                    }
+
+                    if (shouldCapture)
+                    {
                         var (jpegData, width, height) = _config.CaptureArea != null
                             ? _captureService.CaptureArea(
                                 _config.CaptureArea.X, _config.CaptureArea.Y,
                                 _config.CaptureArea.Width, _config.CaptureArea.Height)
                             : _captureService.CaptureScreen();
 
-                        // Optionally post screenshot to Discord
                         if (_config.PostImagesToDiscord && _discordService.IsConfigured)
                             await _discordService.PostImageAsync(jpegData);
 
-                        // Send to AI and post response to Discord
                         if (_config.SendToAi && _aiProvider.IsConfigured)
                         {
                             string aiResponse = await _aiProvider.AnalyzeFrameAsync(jpegData, _config.SystemPrompt);
@@ -103,7 +143,9 @@ namespace VedionScreenShare
                         }
                     }
 
-                    await Task.Delay(_config.CaptureIntervalMs, _cts.Token);
+                    await Task.Delay(
+                        _config.CaptureMode == CaptureMode.Snapshot ? 200 : _config.CaptureIntervalMs,
+                        _cts.Token);
                 }
                 catch (TaskCanceledException) { break; }
                 catch (Exception ex)
@@ -112,8 +154,6 @@ namespace VedionScreenShare
                     await Task.Delay(3000);
                 }
             }
-
-            ShowNotification("Screen sharing stopped.", ToolTipIcon.Info);
         }
 
         private void SetupTrayIcon()
@@ -135,29 +175,36 @@ namespace VedionScreenShare
 
             menu.Items.Add(new ToolStripSeparator());
 
-            _pauseItem = new ToolStripMenuItem("Pause");
+            // Hotkey hints
+            string pauseHint = _config.CaptureMode == CaptureMode.Continuous
+                ? "Pause (Ctrl+Shift+P)" : "Pause (disabled in snapshot mode)";
+            _pauseItem = new ToolStripMenuItem(pauseHint);
             _pauseItem.Click += (s, e) =>
             {
                 _isPaused = !_isPaused;
-                _pauseItem.Text = _isPaused ? "Resume" : "Pause";
+                _pauseItem.Text = _isPaused ? "Resume (Ctrl+Shift+P)" : "Pause (Ctrl+Shift+P)";
                 UpdateStatus(_isPaused ? "Paused" : "Active");
             };
             menu.Items.Add(_pauseItem);
 
-            // Settings — reopen setup window
+            if (_config.CaptureMode == CaptureMode.Snapshot)
+            {
+                var snapItem = new ToolStripMenuItem("Take Snapshot (Ctrl+Shift+S)");
+                snapItem.Click += (s, e) => _snapshotRequested = true;
+                menu.Items.Add(snapItem);
+            }
+
+            // Settings
             var settingsItem = new ToolStripMenuItem("⚙️  Settings...");
             settingsItem.Click += (s, e) =>
             {
                 _isPaused = true;
-                _pauseItem.Text = "Resume";
-                UpdateStatus("Paused (configuring)");
-
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var setup = new SetupWindow();
+                    var setup = new SetupWindow(ConfigService.Load());
                     if (setup.ShowDialog() == true && setup.IsConfigured)
                     {
-                        // Restart with new config
+                        ConfigService.Save(setup.Config);
                         Stop();
                         var newApp = new TrayApplication(setup.Config);
                         newApp.Start();
@@ -165,7 +212,6 @@ namespace VedionScreenShare
                     else
                     {
                         _isPaused = false;
-                        _pauseItem.Text = "Pause";
                         UpdateStatus("Active");
                     }
                 });
@@ -174,8 +220,12 @@ namespace VedionScreenShare
 
             menu.Items.Add(new ToolStripSeparator());
 
-            var providerItem = new ToolStripMenuItem($"AI: {_aiProvider?.Name ?? "None"}") { Enabled = false };
-            menu.Items.Add(providerItem);
+            var modeItem = new ToolStripMenuItem(
+                $"Mode: {(_config.CaptureMode == CaptureMode.Snapshot ? "Snapshot" : "Continuous")}") { Enabled = false };
+            menu.Items.Add(modeItem);
+
+            var aiItem = new ToolStripMenuItem($"AI: {_aiProvider?.Name ?? "None"}") { Enabled = false };
+            menu.Items.Add(aiItem);
 
             menu.Items.Add(new ToolStripSeparator());
 
@@ -188,20 +238,19 @@ namespace VedionScreenShare
 
         private void UpdateStatus(string status)
         {
-            if (_statusItem != null)
-                _statusItem.Text = $"Status: {status}";
+            if (_statusItem != null) _statusItem.Text = $"Status: {status}";
         }
 
         private void UpdateLastResponse(string response)
         {
             if (_lastResponseItem == null) return;
-            string truncated = response.Length > 60 ? response[..60] + "..." : response;
-            _lastResponseItem.Text = $"AI: {truncated}";
+            string t = response.Length > 60 ? response[..60] + "…" : response;
+            _lastResponseItem.Text = $"AI: {t}";
         }
 
         private void ShowNotification(string message, ToolTipIcon icon = ToolTipIcon.Info)
         {
-            try { _trayIcon?.ShowBalloonTip(5000, "Vedion", message, icon); }
+            try { _trayIcon?.ShowBalloonTip(4000, "Vedion", message, icon); }
             catch { }
         }
 

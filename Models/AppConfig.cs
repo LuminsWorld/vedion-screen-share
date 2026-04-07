@@ -31,12 +31,25 @@ namespace VedionScreenShare.Models
         // System prompt sent with each frame
         public string SystemPrompt { get; set; } = "You are a helpful assistant. The user is sharing their screen with you. Describe what you see and help them with anything you notice.";
 
+        // Capture mode
+        public CaptureMode CaptureMode { get; set; } = CaptureMode.Continuous;
+
+        // Hotkeys (virtual key codes)
+        public uint HotkeyPauseMod { get; set; } = 0x0006; // CTRL+SHIFT
+        public uint HotkeyPauseKey { get; set; } = 0x50;   // P
+        public uint HotkeySnapMod  { get; set; } = 0x0006; // CTRL+SHIFT
+        public uint HotkeySnapKey  { get; set; } = 0x53;   // S
+
         // Behavior
         public bool AutoStart { get; set; } = false;
         public bool MinimizeToTray { get; set; } = true;
         public bool SendToAi { get; set; } = true;
-        public bool SendToDiscord { get; set; } = false;
-        public bool SendToTelegram { get; set; } = false;
+    }
+
+    public enum CaptureMode
+    {
+        Continuous, // Send frames on timer
+        Snapshot    // Only send when hotkey pressed
     }
 
     public enum AiProviderType

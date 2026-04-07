@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Threading;
+using VedionScreenShare.Services;
 
 namespace VedionScreenShare
 {
@@ -10,10 +11,9 @@ namespace VedionScreenShare
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            // Catch any unhandled exceptions and show them
             DispatcherUnhandledException += (s, ex) =>
             {
-                MessageBox.Show($"Unhandled error:\n\n{ex.Exception.Message}\n\n{ex.Exception.StackTrace}",
+                MessageBox.Show($"Error:\n\n{ex.Exception.Message}\n\n{ex.Exception.StackTrace}",
                     "Vedion Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 ex.Handled = true;
             };
@@ -28,11 +28,17 @@ namespace VedionScreenShare
 
             try
             {
-                var setup = new SetupWindow();
+                // Load saved config if it exists
+                var savedConfig = ConfigService.Exists() ? ConfigService.Load() : null;
+
+                var setup = new SetupWindow(savedConfig);
                 bool? result = setup.ShowDialog();
 
                 if (result == true && setup.IsConfigured)
                 {
+                    // Save config for next time
+                    ConfigService.Save(setup.Config);
+
                     _trayApp = new TrayApplication(setup.Config);
                     _trayApp.Start();
                 }

@@ -13,15 +13,55 @@ namespace VedionScreenShare
 
         private CaptureArea _selectedRegion = null;
 
-        public SetupWindow()
+        public SetupWindow(AppConfig existing = null)
         {
             InitializeComponent();
+
             IntervalSlider.ValueChanged += (s, e) =>
             {
                 double ms = IntervalSlider.Value;
                 IntervalLabel.Text = ms >= 1000 ? $"{ms / 1000:0.#}s" : $"{(int)ms}ms";
             };
             QualitySlider.ValueChanged += (s, e) => QualityLabel.Text = $"{(int)QualitySlider.Value}%";
+
+            // Pre-fill from saved config if provided
+            if (existing != null)
+                Loaded += (s, e) => PopulateFrom(existing);
+        }
+
+        private void PopulateFrom(AppConfig c)
+        {
+            // AI provider
+            foreach (ComboBoxItem item in AiProviderCombo.Items)
+                if (item.Tag?.ToString() == c.AiProvider.ToString())
+                { AiProviderCombo.SelectedItem = item; break; }
+
+            ApiKeyInput.Text           = c.AiApiKey;
+            ModelInput.Text            = c.AiModel;
+            OllamaEndpointInput.Text   = c.AiEndpointOverride;
+            DiscordWebhookInput.Text   = c.DiscordWebhookUrl;
+            PostImagesCheck.IsChecked  = c.PostImagesToDiscord;
+            SystemPromptInput.Text     = c.SystemPrompt;
+
+            // Capture
+            KeyInput.Text              = c.EncryptionKey;
+            IntervalSlider.Value       = c.CaptureIntervalMs;
+            QualitySlider.Value        = c.JpegQuality;
+            AutoStartCheck.IsChecked   = c.AutoStart;
+            MinimizeCheck.IsChecked    = c.MinimizeToTray;
+
+            // Mode
+            ContinuousModeRadio.IsChecked = c.CaptureMode == CaptureMode.Continuous;
+            SnapshotModeRadio.IsChecked   = c.CaptureMode == CaptureMode.Snapshot;
+
+            // Region
+            if (c.CaptureArea != null)
+            {
+                _selectedRegion = c.CaptureArea;
+                CustomRegionRadio.IsChecked = true;
+                RegionLabel.Text = $"Selected: {c.CaptureArea.Width} × {c.CaptureArea.Height} at ({c.CaptureArea.X}, {c.CaptureArea.Y})";
+                RegionLabel.Foreground = System.Windows.Media.Brushes.Green;
+            }
         }
 
         private void AiProviderCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -144,6 +184,7 @@ namespace VedionScreenShare
                 CaptureIntervalMs       = (int)IntervalSlider.Value,
                 JpegQuality             = (int)QualitySlider.Value,
                 CaptureArea             = _selectedRegion,
+                CaptureMode             = SnapshotModeRadio.IsChecked == true ? CaptureMode.Snapshot : CaptureMode.Continuous,
                 AutoStart               = AutoStartCheck.IsChecked == true,
                 MinimizeToTray          = MinimizeCheck.IsChecked == true,
                 SendToAi                = true

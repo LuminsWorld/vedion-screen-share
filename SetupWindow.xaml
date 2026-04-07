@@ -154,6 +154,24 @@
                                        FontSize="11" Foreground="#666"/>
                         </StackPanel>
 
+                        <!-- Capture Mode -->
+                        <TextBlock Text="Capture Mode:" FontWeight="SemiBold" Margin="0,16,0,8"/>
+                        <RadioButton x:Name="ContinuousModeRadio" Content="🔴  Live — send frames continuously on timer"
+                                     IsChecked="True" Margin="0,0,0,6"/>
+                        <RadioButton x:Name="SnapshotModeRadio"
+                                     Content="📸  Snapshot — only send when hotkey pressed (Ctrl+Shift+S)"
+                                     Margin="0,0,0,16"/>
+
+                        <!-- Hotkeys info -->
+                        <Border Background="#f7fafc" BorderBrush="#e2e8f0" BorderThickness="1"
+                                Padding="10" CornerRadius="4" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="⌨️  Hotkeys (always active)" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                                <TextBlock Text="Ctrl + Shift + P  →  Pause / Resume" FontSize="11" Foreground="#444" Margin="0,0,0,3"/>
+                                <TextBlock Text="Ctrl + Shift + S  →  Take snapshot (snapshot mode)" FontSize="11" Foreground="#444"/>
+                            </StackPanel>
+                        </Border>
+
                         <CheckBox x:Name="AutoStartCheck" Content="Auto-start capturing on launch" Margin="0,0,0,8"/>
                         <CheckBox x:Name="MinimizeCheck" Content="Minimize to tray on start" IsChecked="True"/>
 
