@@ -1,4 +1,6 @@
+using System;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace VedionScreenShare
 {
@@ -8,16 +10,41 @@ namespace VedionScreenShare
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            // Catch any unhandled exceptions and show them
+            DispatcherUnhandledException += (s, ex) =>
+            {
+                MessageBox.Show($"Unhandled error:\n\n{ex.Exception.Message}\n\n{ex.Exception.StackTrace}",
+                    "Vedion Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ex.Handled = true;
+            };
+
+            AppDomain.CurrentDomain.UnhandledException += (s, ex) =>
+            {
+                MessageBox.Show($"Fatal error:\n\n{ex.ExceptionObject}",
+                    "Vedion Fatal Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            };
+
             base.OnStartup(e);
 
-            var setup = new SetupWindow();
-            if (setup.ShowDialog() == true)
+            try
             {
-                _trayApp = new TrayApplication(setup.Config);
-                _trayApp.Start();
+                var setup = new SetupWindow();
+                bool? result = setup.ShowDialog();
+
+                if (result == true && setup.IsConfigured)
+                {
+                    _trayApp = new TrayApplication(setup.Config);
+                    _trayApp.Start();
+                }
+                else
+                {
+                    Shutdown();
+                }
             }
-            else
+            catch (Exception ex)
             {
+                MessageBox.Show($"Startup error:\n\n{ex.Message}\n\n{ex.StackTrace}",
+                    "Vedion Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown();
             }
         }
