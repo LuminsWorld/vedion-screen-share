@@ -52,7 +52,7 @@ namespace VedionScreenShare
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Startup error: {ex.Message}", "Vedion", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show($"Startup error: {ex.Message}", "Vedion", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
                 Stop();
             }
         }
