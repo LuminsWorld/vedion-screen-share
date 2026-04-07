@@ -4,135 +4,25 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Vedion Screen Share - Setup"
-    Height="500"
+    Height="560"
     Width="600"
     WindowStartupLocation="CenterScreen"
     ResizeMode="NoResize"
     Background="#F5F5F5">
-    
-    <Grid Margin="30">
-        <StackPanel VerticalAlignment="Top">
-            
-            <!-- Header -->
-            <StackPanel Margin="0,0,0,20">
-                <TextBlock 
-                    Text="Vedion Screen Share Setup"
-                    FontSize="24"
-                    FontWeight="Bold"
-                    Foreground="#1a1a1a"
-                    Margin="0,0,0,10"/>
-                <TextBlock 
-                    Text="This application will record your screen and send encrypted frames for live assistance."
-                    FontSize="12"
-                    Foreground="#666"
-                    TextWrapping="Wrap"/>
-            </StackPanel>
 
-            <!-- Disclosure -->
-            <Border BorderBrush="#ddd" BorderThickness="1" Background="#fff9e6" Padding="15" CornerRadius="4" Margin="0,0,0,20">
-                <StackPanel>
-                    <TextBlock Text="⚠️ What This Does" FontWeight="Bold" Margin="0,0,0,8"/>
-                    <TextBlock 
-                        Text="✓ Records your screen at regular intervals&#x0a;✓ Encrypts all frames with AES-256&#x0a;✓ Sends encrypted data to the configured endpoint&#x0a;✓ Runs in the background with minimal interference&#x0a;✓ Shows status in system tray"
-                        FontSize="11"
-                        Foreground="#333"
-                        TextWrapping="Wrap"
-                        LineHeight="18"/>
-                </StackPanel>
-            </Border>
+    <DockPanel Margin="30">
 
-            <!-- Configuration -->
-            <StackPanel>
-                
-                <!-- Endpoint -->
-                <StackPanel Margin="0,0,0,12">
-                    <TextBlock Text="Endpoint URL (WebSocket)" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                    <TextBox 
-                        x:Name="EndpointInput"
-                        Height="32"
-                        Padding="8"
-                        FontSize="11"
-                        Text="wss://vedion.example.com/screen"
-                        Background="White"
-                        BorderBrush="#ccc"/>
-                </StackPanel>
-
-                <!-- Encryption Key -->
-                <StackPanel Margin="0,0,0,12">
-                    <StackPanel Margin="0,0,0,4">
-                        <TextBlock Text="Encryption Key (Base64)" FontWeight="SemiBold" Margin="0,0,8,0"/>
-                        <Button 
-                            x:Name="GenerateKeyButton"
-                            Content="Generate New"
-                            Padding="8,4"
-                            FontSize="10"
-                            Background="#007ACC"
-                            Foreground="White"
-                            Click="GenerateKeyButton_Click"
-                            Width="120"
-                            HorizontalAlignment="Left"
-                            Margin="0,0,0,4"/>
-                    </StackPanel>
-                    <TextBox 
-                        x:Name="KeyInput"
-                        Height="32"
-                        Padding="8"
-                        FontSize="10"
-                        Background="White"
-                        BorderBrush="#ccc"
-                        TextWrapping="Wrap"
-                        AcceptsReturn="False"/>
-                </StackPanel>
-
-                <!-- Capture Interval -->
-                <StackPanel Margin="0,0,0,12">
-                    <StackPanel Margin="0,0,0,4">
-                        <TextBlock Text="Capture Interval (ms):" FontWeight="SemiBold" Margin="0,0,8,0"/>
-                        <TextBlock x:Name="IntervalLabel" Text="1000" Foreground="#666" Margin="0,0,0,4"/>
-                    </StackPanel>
-                    <Slider 
-                        x:Name="IntervalSlider"
-                        Minimum="500"
-                        Maximum="5000"
-                        Value="1000"
-                        TickFrequency="500"
-                        IsSnapToTickEnabled="True"
-                        Height="20"/>
-                </StackPanel>
-
-                <!-- JPEG Quality -->
-                <StackPanel>
-                    <StackPanel Margin="0,0,0,4">
-                        <TextBlock Text="Image Quality:" FontWeight="SemiBold" Margin="0,0,8,0"/>
-                        <TextBlock x:Name="QualityLabel" Text="75%" Foreground="#666" Margin="0,0,0,4"/>
-                    </StackPanel>
-                    <Slider 
-                        x:Name="QualitySlider"
-                        Minimum="40"
-                        Maximum="95"
-                        Value="75"
-                        TickFrequency="5"
-                        IsSnapToTickEnabled="True"
-                        Height="20"/>
-                </StackPanel>
-
-            </StackPanel>
-
-        </StackPanel>
-
-        <!-- Buttons -->
-        <StackPanel 
-            VerticalAlignment="Bottom"
-            Orientation="Horizontal">
+        <!-- Buttons pinned to bottom -->
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,20,0,0">
             <Button 
                 x:Name="CancelButton"
                 Content="Cancel"
                 Padding="16,8"
+                Margin="0,0,10,0"
                 Background="#f0f0f0"
                 Foreground="#1a1a1a"
                 BorderBrush="#ccc"
-                Click="CancelButton_Click"
-                Margin="0,0,10,0"/>
+                Click="CancelButton_Click"/>
             <Button 
                 x:Name="StartButton"
                 Content="Start Sharing"
@@ -142,5 +32,101 @@
                 FontWeight="Bold"
                 Click="StartButton_Click"/>
         </StackPanel>
-    </Grid>
+
+        <!-- Scrollable content -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <!-- Header -->
+                <TextBlock 
+                    Text="Vedion Screen Share Setup"
+                    FontSize="24"
+                    FontWeight="Bold"
+                    Foreground="#1a1a1a"
+                    Margin="0,0,0,8"/>
+                <TextBlock 
+                    Text="This application will record your screen and send encrypted frames for live assistance."
+                    FontSize="12"
+                    Foreground="#666"
+                    TextWrapping="Wrap"
+                    Margin="0,0,0,20"/>
+
+                <!-- Disclosure -->
+                <Border BorderBrush="#ddd" BorderThickness="1" Background="#fff9e6" Padding="15" CornerRadius="4" Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="⚠️ What This Does" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <TextBlock 
+                            Text="✓ Records your screen at regular intervals&#x0a;✓ Encrypts all frames with AES-256&#x0a;✓ Sends encrypted data to the configured endpoint&#x0a;✓ Runs in the background with minimal interference&#x0a;✓ Shows status in system tray"
+                            FontSize="11"
+                            Foreground="#333"
+                            TextWrapping="Wrap"
+                            LineHeight="20"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Endpoint -->
+                <TextBlock Text="Endpoint URL (WebSocket)" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <TextBox 
+                    x:Name="EndpointInput"
+                    Height="32"
+                    Padding="8,6"
+                    FontSize="11"
+                    Text="wss://vedion.example.com/screen"
+                    Background="White"
+                    BorderBrush="#ccc"
+                    Margin="0,0,0,16"/>
+
+                <!-- Encryption Key -->
+                <TextBlock Text="Encryption Key (Base64)" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <Button 
+                    x:Name="GenerateKeyButton"
+                    Content="Generate New"
+                    Padding="8,4"
+                    FontSize="10"
+                    Background="#007ACC"
+                    Foreground="White"
+                    Width="120"
+                    HorizontalAlignment="Left"
+                    Click="GenerateKeyButton_Click"
+                    Margin="0,0,0,6"/>
+                <TextBox 
+                    x:Name="KeyInput"
+                    Height="32"
+                    Padding="8,6"
+                    FontSize="10"
+                    Background="White"
+                    BorderBrush="#ccc"
+                    Margin="0,0,0,16"/>
+
+                <!-- Capture Interval -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock Text="Capture Interval: " FontWeight="SemiBold"/>
+                    <TextBlock x:Name="IntervalLabel" Text="1000ms" Foreground="#666"/>
+                </StackPanel>
+                <Slider 
+                    x:Name="IntervalSlider"
+                    Minimum="500"
+                    Maximum="5000"
+                    Value="1000"
+                    TickFrequency="500"
+                    IsSnapToTickEnabled="True"
+                    Margin="0,0,0,16"/>
+
+                <!-- JPEG Quality -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock Text="Image Quality: " FontWeight="SemiBold"/>
+                    <TextBlock x:Name="QualityLabel" Text="75%" Foreground="#666"/>
+                </StackPanel>
+                <Slider 
+                    x:Name="QualitySlider"
+                    Minimum="40"
+                    Maximum="95"
+                    Value="75"
+                    TickFrequency="5"
+                    IsSnapToTickEnabled="True"/>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </DockPanel>
 </Window>
