@@ -20,4 +20,13 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Resources\tray.ico"/>
+    <Resource Include="Resources\icon_32.png"/>
+    <Resource Include="Resources\icon_48.png"/>
+    <Resource Include="Resources\icon_128.png"/>
+    <Resource Include="Resources\icon_256.png"/>
+    <Resource Include="Resources\splash_bg.png"/>
+    <Resource Include="Resources\Icons.xaml"/>
+  </ItemGroup>
 </Project>

@@ -6,6 +6,10 @@
     ShutdownMode="OnExplicitShutdown">
 
   <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/Icons.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
 
     <!-- ── COLORS ─────────────────────────────────────────────────────── -->
     <Color x:Key="Green">#00FF41</Color>
@@ -272,5 +276,6 @@
       <Setter Property="Background" Value="Transparent"/>
     </Style>
 
+    </ResourceDictionary>
   </Application.Resources>
 </Application>

@@ -64,9 +64,10 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
 
-          <!-- Logo -->
+          <!-- Logo + generated icon -->
           <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-            <Border Width="6" Height="6" CornerRadius="3" Background="#00FF41" Margin="0,0,8,0"/>
+            <Image Source="/Resources/icon_32.png" Width="20" Height="20" Margin="0,0,8,0"
+                   RenderOptions.BitmapScalingMode="HighQuality"/>
             <TextBlock Text="VEDION" FontFamily="Consolas" FontSize="11" Foreground="#00FF41"
                        VerticalAlignment="Center"/>
           </StackPanel>
@@ -82,36 +83,37 @@
                            Foreground="#888" VerticalAlignment="Center"/>
               </StackPanel>
             </Border>
-            <!-- Minimize -->
-            <Button Content="—" Foreground="#444" Background="Transparent" BorderThickness="0"
-                    FontSize="12" Cursor="Hand" Click="MinimizeBtn_Click" Width="28" Height="28"
-                    Margin="0,0,4,0" ToolTip="Minimize to tray">
+            <!-- Minimize (icon button) -->
+            <Button Cursor="Hand" Click="MinimizeBtn_Click" Width="28" Height="28"
+                    Margin="0,0,4,0" ToolTip="Minimize to tray" Background="Transparent" BorderThickness="0">
               <Button.Template>
                 <ControlTemplate TargetType="Button">
-                  <Border x:Name="Bd" Background="Transparent" CornerRadius="4">
-                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Width="28" Height="28">
+                    <Path Data="{StaticResource MinusGeo}" Style="{StaticResource Icon12}"
+                          Stroke="#444" x:Name="Ico"/>
                   </Border>
                   <ControlTemplate.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
                       <Setter TargetName="Bd" Property="Background" Value="#1a1a1a"/>
-                      <Setter Property="Foreground" Value="#888"/>
+                      <Setter TargetName="Ico" Property="Stroke" Value="#888"/>
                     </Trigger>
                   </ControlTemplate.Triggers>
                 </ControlTemplate>
               </Button.Template>
             </Button>
-            <!-- Close -->
-            <Button Content="✕" Foreground="#444" Background="Transparent" BorderThickness="0"
-                    FontSize="12" Cursor="Hand" Click="CloseBtn_Click" Width="28" Height="28">
+            <!-- Close (icon button) -->
+            <Button Cursor="Hand" Click="CloseBtn_Click" Width="28" Height="28"
+                    Background="Transparent" BorderThickness="0">
               <Button.Template>
                 <ControlTemplate TargetType="Button">
-                  <Border x:Name="Bd" Background="Transparent" CornerRadius="4">
-                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Width="28" Height="28">
+                    <Path Data="{StaticResource CloseGeo}" Style="{StaticResource Icon12}"
+                          Stroke="#444" x:Name="Ico"/>
                   </Border>
                   <ControlTemplate.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
                       <Setter TargetName="Bd" Property="Background" Value="#3a0000"/>
-                      <Setter Property="Foreground" Value="#f87171"/>
+                      <Setter TargetName="Ico" Property="Stroke" Value="#f87171"/>
                     </Trigger>
                   </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -209,7 +211,7 @@
               <TextBox x:Name="DiscordWebhookInput" Grid.Column="0" Style="{StaticResource Field}"
                        Margin="0,0,8,0" ToolTip="Paste your Discord webhook URL"/>
               <Button Grid.Column="1" Content="TEST" Style="{StaticResource GhostBtn}"
-                      Click="TestDiscordWebhook_Click"/>
+                      Click="TestDiscordWebhook_Click"><Button.Content><StackPanel Orientation="Horizontal"><Path Data="{StaticResource SignalGeo}" Style="{StaticResource Icon12}" Stroke="#555" Margin="0,0,5,0"/><TextBlock Text="TEST" FontFamily="Consolas" FontSize="10"/></StackPanel></Button.Content></Button>
             </Grid>
 
             <!-- Include image -->
@@ -302,7 +304,7 @@
             <Grid Margin="0,0,0,12">
               <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
               <TextBox x:Name="AiWebhookInput" Grid.Column="0" Style="{StaticResource Field}" Margin="0,0,8,0"/>
-              <Button Grid.Column="1" Content="TEST" Style="{StaticResource GhostBtn}" Click="TestAiWebhook_Click"/>
+              <Button Grid.Column="1" Style="{StaticResource GhostBtn}" Click="TestAiWebhook_Click"><Button.Content><StackPanel Orientation="Horizontal"><Path Data="{StaticResource SignalGeo}" Style="{StaticResource Icon12}" Stroke="#555" Margin="0,0,5,0"/><TextBlock Text="TEST" FontFamily="Consolas" FontSize="10"/></StackPanel></Button.Content></Button>
             </Grid>
 
             <!-- Include image -->
@@ -365,8 +367,8 @@
             </Border>
 
             <!-- Test now (hotkey mode) -->
-            <Button x:Name="AiTestBtn" Content="SEND NOW" Style="{StaticResource GhostBtn}"
-                    Click="AiTestNow_Click" HorizontalAlignment="Left" Margin="0,0,0,16"/>
+            <Button x:Name="AiTestBtn" Style="{StaticResource GhostBtn}"
+                    Click="AiTestNow_Click" HorizontalAlignment="Left" Margin="0,0,0,16"><Button.Content><StackPanel Orientation="Horizontal"><Path Data="{StaticResource SendGeo}" Style="{StaticResource Icon12}" Stroke="#00FF41" Margin="0,0,5,0"/><TextBlock Text="SEND NOW" FontFamily="Consolas" FontSize="10"/></StackPanel></Button.Content></Button>
 
             <!-- Last response -->
             <Border Background="#111" BorderBrush="#1a1a1a" BorderThickness="0,0,0,0"
@@ -409,8 +411,8 @@
           <StackPanel Grid.Column="0" Margin="0,0,16,0">
             <TextBlock Text="REGION" Style="{StaticResource MonoLabel}"/>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-              <Button Content="SELECT" Style="{StaticResource GhostBtn}" Click="SelectRegion_Click" Margin="0,0,6,0"/>
-              <Button Content="RESET"  Style="{StaticResource GhostBtn}" Click="ResetRegion_Click"/>
+              <Button Style="{StaticResource GhostBtn}" Click="SelectRegion_Click" Margin="0,0,6,0"><Button.Content><StackPanel Orientation="Horizontal"><Path Data="{StaticResource RegionGeo}" Style="{StaticResource Icon12}" Stroke="#555" Margin="0,0,5,0"/><TextBlock Text="SELECT" FontFamily="Consolas" FontSize="10"/></StackPanel></Button.Content></Button>
+              <Button Style="{StaticResource GhostBtn}" Click="ResetRegion_Click"><Button.Content><StackPanel Orientation="Horizontal"><Path Data="{StaticResource ResetGeo}" Style="{StaticResource Icon12}" Stroke="#555" Margin="0,0,5,0"/><TextBlock Text="RESET" FontFamily="Consolas" FontSize="10"/></StackPanel></Button.Content></Button>
             </StackPanel>
             <TextBlock x:Name="RegionLabel" Text="Full screen" FontFamily="Consolas"
                        FontSize="10" Foreground="#333"/>
@@ -453,7 +455,7 @@
           <TextBlock x:Name="StatusLabel" Grid.Column="0" FontFamily="Consolas"
                      FontSize="10" Foreground="#333" VerticalAlignment="Center" Text="Idle"/>
           <StackPanel Grid.Column="1" Orientation="Horizontal">
-            <Button Content="SIGN OUT" Style="{StaticResource GhostBtn}" Click="SignOut_Click" Margin="0,0,8,0"/>
+            <Button Style="{StaticResource GhostBtn}" Click="SignOut_Click" Margin="0,0,8,0"><Button.Content><StackPanel Orientation="Horizontal"><Path Data="{StaticResource UserGeo}" Style="{StaticResource Icon12}" Stroke="#555" Margin="0,0,5,0"/><TextBlock Text="SIGN OUT" FontFamily="Consolas" FontSize="10"/></StackPanel></Button.Content></Button>
             <TextBlock Text="v2.0" FontFamily="Consolas" FontSize="10"
                        Foreground="#1e1e1e" VerticalAlignment="Center"/>
           </StackPanel>
