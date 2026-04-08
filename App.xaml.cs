@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using VedionScreenShare.Services;
@@ -9,7 +10,7 @@ namespace VedionScreenShare
     {
         private TrayApplication _trayApp;
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             DispatcherUnhandledException += (s, ex) =>
             {
@@ -28,6 +29,20 @@ namespace VedionScreenShare
 
             try
             {
+                // Check license first
+                string savedKey = LicenseService.LoadKey();
+                var (licensed, _) = await LicenseService.ValidateAsync(savedKey);
+
+                if (!licensed)
+                {
+                    var licenseWindow = new LicenseWindow();
+                    if (licenseWindow.ShowDialog() != true)
+                    {
+                        Shutdown();
+                        return;
+                    }
+                }
+
                 // Load saved config if it exists
                 var savedConfig = ConfigService.Exists() ? ConfigService.Load() : null;
 
