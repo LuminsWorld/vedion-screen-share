@@ -60,3 +60,9 @@ certs/*.crt
 publish/
 *.zip
 *.msi
+
+# Installer build output
+installer/output/
+
+# Raw wizard images (generated assets committed, output not)
+installer/wizard_banner_raw.png
