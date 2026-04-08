@@ -1,87 +1,51 @@
-using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
-namespace VedionScreenShare.Services
+namespace VedionScreenShare.Services;
+
+public static class DiscordService
 {
-    public class DiscordService
+    private static readonly HttpClient _http = new();
+
+    /// <summary>Posts a message (+ optional image) to a Discord webhook.</summary>
+    public static async Task PostAsync(string webhookUrl, string message, byte[]? imageBytes = null, string filename = "screenshot.jpg")
     {
-        private readonly string _webhookUrl;
-        private static readonly HttpClient _http = new HttpClient();
+        if (string.IsNullOrWhiteSpace(webhookUrl)) return;
 
-        public bool IsConfigured => !string.IsNullOrWhiteSpace(_webhookUrl)
-                                    && _webhookUrl.StartsWith("https://discord.com/api/webhooks/");
-
-        public DiscordService(string webhookUrl)
+        if (imageBytes is null)
         {
-            _webhookUrl = webhookUrl;
+            // Text only
+            var body = System.Text.Json.JsonSerializer.Serialize(new { content = message });
+            await _http.PostAsync(webhookUrl,
+                new StringContent(body, System.Text.Encoding.UTF8, "application/json"));
         }
-
-        /// <summary>
-        /// Post a text message to the Discord channel via webhook
-        /// </summary>
-        public async Task PostTextAsync(string message)
+        else
         {
-            if (!IsConfigured) return;
-
-            // Discord has a 2000 char limit per message
-            if (message.Length > 1990)
-                message = message[..1990] + "…";
-
-            var payload = new { content = message };
-            string json = JsonSerializer.Serialize(payload);
-
-            var response = await _http.PostAsync(_webhookUrl,
-                new StringContent(json, Encoding.UTF8, "application/json"));
-
-            if (!response.IsSuccessStatusCode)
-            {
-                string error = await response.Content.ReadAsStringAsync();
-                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                    throw new Exception("Discord webhook URL is invalid (404). Open Settings and fix the webhook URL.");
-                throw new Exception($"Discord error {response.StatusCode}: {error}");
-            }
-        }
-
-        /// <summary>
-        /// Post a screenshot image to the Discord channel via webhook
-        /// </summary>
-        public async Task PostImageAsync(byte[] jpegBytes, string caption = "")
-        {
-            if (!IsConfigured) return;
-
+            // Multipart: image + text
             using var form = new MultipartFormDataContent();
 
-            var imageContent = new ByteArrayContent(jpegBytes);
-            imageContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-            form.Add(imageContent, "file", $"screen-{DateTime.UtcNow:HH-mm-ss}.jpg");
+            var imgContent = new ByteArrayContent(imageBytes);
+            imgContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+            form.Add(imgContent, "file", filename);
 
-            if (!string.IsNullOrWhiteSpace(caption))
+            if (!string.IsNullOrWhiteSpace(message))
             {
-                var payload = new { content = caption };
-                form.Add(new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"), "payload_json");
+                var payload = System.Text.Json.JsonSerializer.Serialize(new { content = message });
+                form.Add(new StringContent(payload, System.Text.Encoding.UTF8, "application/json"), "payload_json");
             }
 
-            var response = await _http.PostAsync(_webhookUrl, form);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                string error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Discord image post error {response.StatusCode}: {error}");
-            }
+            await _http.PostAsync(webhookUrl, form);
         }
+    }
 
-        /// <summary>
-        /// Post AI response with optional timestamp header
-        /// </summary>
-        public async Task PostAiResponseAsync(string aiName, string response)
+    /// <summary>Validates a webhook URL by sending a GET request.</summary>
+    public static async Task<bool> ValidateWebhookAsync(string webhookUrl)
+    {
+        try
         {
-            string timestamp = DateTime.Now.ToString("HH:mm:ss");
-            string message = $"**[{timestamp}] {aiName}:**\n{response}";
-            await PostTextAsync(message);
+            var resp = await _http.GetAsync(webhookUrl);
+            return resp.IsSuccessStatusCode;
         }
+        catch { return false; }
     }
 }

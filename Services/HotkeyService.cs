@@ -1,64 +1,63 @@
-using System;
 using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Interop;
 
-namespace VedionScreenShare.Services
+namespace VedionScreenShare.Services;
+
+public class HotkeyService : IDisposable
 {
-    public class HotkeyService : IDisposable
+    [DllImport("user32.dll")] private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+    [DllImport("user32.dll")] private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+    private const int WM_HOTKEY = 0x0312;
+
+    private HwndSource? _source;
+    private readonly Dictionary<int, Action> _handlers = new();
+    private int _nextId = 9000;
+    private IntPtr _hwnd;
+
+    public void Attach(Window window)
     {
-        [DllImport("user32.dll")] static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-        [DllImport("user32.dll")] static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+        _hwnd   = new WindowInteropHelper(window).Handle;
+        _source = HwndSource.FromHwnd(_hwnd);
+        _source?.AddHook(WndProc);
+    }
 
-        private const int WM_HOTKEY = 0x0312;
+    public int Register(uint mod, uint vk, Action callback)
+    {
+        int id = _nextId++;
+        if (!RegisterHotKey(_hwnd, id, mod, vk))
+            throw new InvalidOperationException($"Failed to register hotkey (mod={mod:X}, vk={vk:X}). It may already be in use.");
+        _handlers[id] = callback;
+        return id;
+    }
 
-        // Modifier flags
-        public const uint MOD_NONE  = 0x0000;
-        public const uint MOD_ALT   = 0x0001;
-        public const uint MOD_CTRL  = 0x0002;
-        public const uint MOD_SHIFT = 0x0004;
+    public void Unregister(int id)
+    {
+        if (_handlers.Remove(id))
+            UnregisterHotKey(_hwnd, id);
+    }
 
-        private HwndSource _source;
-        private readonly int _pauseId   = 1;
-        private readonly int _snapshotId = 2;
+    public void UnregisterAll()
+    {
+        foreach (var id in _handlers.Keys.ToList())
+            UnregisterHotKey(_hwnd, id);
+        _handlers.Clear();
+    }
 
-        public event Action OnPauseResumePressed;
-        public event Action OnSnapshotPressed;
-
-        public void Register(uint pauseMod, uint pauseKey, uint snapMod, uint snapKey)
+    private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg == WM_HOTKEY && _handlers.TryGetValue(wParam.ToInt32(), out var cb))
         {
-            // Create hidden window to receive hotkey messages
-            var helper = new HwndSourceParameters("HotkeyWindow")
-            {
-                Width = 0, Height = 0,
-                WindowStyle = 0
-            };
-            _source = new HwndSource(helper);
-            _source.AddHook(WndProc);
-
-            RegisterHotKey(_source.Handle, _pauseId,    pauseMod, pauseKey);
-            RegisterHotKey(_source.Handle, _snapshotId, snapMod,  snapKey);
+            cb();
+            handled = true;
         }
+        return IntPtr.Zero;
+    }
 
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            if (msg == WM_HOTKEY)
-            {
-                int id = wParam.ToInt32();
-                if (id == _pauseId)    { OnPauseResumePressed?.Invoke(); handled = true; }
-                if (id == _snapshotId) { OnSnapshotPressed?.Invoke();    handled = true; }
-            }
-            return IntPtr.Zero;
-        }
-
-        public void Dispose()
-        {
-            if (_source != null)
-            {
-                UnregisterHotKey(_source.Handle, _pauseId);
-                UnregisterHotKey(_source.Handle, _snapshotId);
-                _source.RemoveHook(WndProc);
-                _source.Dispose();
-            }
-        }
+    public void Dispose()
+    {
+        UnregisterAll();
+        _source?.RemoveHook(WndProc);
     }
 }

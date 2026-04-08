@@ -4,14 +4,14 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using VedionScreenShare.Models;
 
-namespace VedionScreenShare
+namespace VedionScreenShare.Windows
 {
     public partial class RegionSelectorWindow : Window
     {
         private Point _startPoint;
         private bool _isDragging = false;
 
-        public CaptureArea SelectedRegion { get; private set; }
+        public CaptureRegion SelectedRegion { get; private set; }
         public bool WasConfirmed { get; private set; }
 
         public RegionSelectorWindow()
@@ -106,7 +106,7 @@ namespace VedionScreenShare
             double dpi = PresentationSource.FromVisual(this)
                 ?.CompositionTarget?.TransformToDevice.M11 ?? 1.0;
 
-            SelectedRegion = new CaptureArea
+            SelectedRegion = new CaptureRegion
             {
                 X      = (int)(x * dpi),
                 Y      = (int)(y * dpi),

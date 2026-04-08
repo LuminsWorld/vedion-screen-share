@@ -1,28 +1,23 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>VedionScreenShare</AssemblyName>
     <RootNamespace>VedionScreenShare</RootNamespace>
-    <Version>1.0.0</Version>
-    <Authors>Vedion</Authors>
-    <Company>Vedion</Company>
-    <Product>Vedion Screen Share</Product>
-    <Description>Encrypted background screen-sharing for secure live assistance</Description>
-    <LangVersion>latest</LangVersion>
+    <ApplicationIcon>Resources\tray.ico</ApplicationIcon>
+    <AssemblyVersion>2.0.0</AssemblyVersion>
+    <FileVersion>2.0.0</FileVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!-- No external NuGet dependencies needed for this scaffold -->
-    <!-- All encryption, networking, and UI uses .NET built-ins -->
-  </ItemGroup>
-
-  <!-- PostBuild: Create sample config file -->
-  <Target Name="PostBuild" AfterTargets="Build">
-    <Message Text="Build complete: $(OutputPath)VedionScreenShare.exe" Importance="high" />
-  </Target>
-
+  <!-- Self-contained publish profile (dotnet publish -c Release -r win-x64) -->
+  <PropertyGroup Condition="'$(PublishSingleFile)' == 'true'">
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
 </Project>
