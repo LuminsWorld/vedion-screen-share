@@ -9,7 +9,7 @@ public static class Constants
 
     // Google OAuth Web Client ID
     // Get from: Firebase Console → Authentication → Sign-in method → Google → Web SDK configuration → Web client ID
-    public const string GoogleClientId     = "597550884386-PLACEHOLDER.apps.googleusercontent.com";
+    public const string GoogleClientId     = "597550884386-8bi33b7talvdieikei0jpb4gvgmaitr5.apps.googleusercontent.com";
 
     // ── App ───────────────────────────────────────────────────────────────
     public const string AppVersion         = "2.0.0";
