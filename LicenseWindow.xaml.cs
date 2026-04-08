@@ -49,7 +49,7 @@ namespace VedionScreenShare
             // Open your store page
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
-                FileName = "https://your-store.lemonsqueezy.com",
+                FileName = "https://vedion.cloud/screen-share",
                 UseShellExecute = true
             });
         }
