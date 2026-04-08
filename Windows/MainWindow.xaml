@@ -4,336 +4,462 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Vedion Screen Share"
-    Width="560" Height="680"
-    MinWidth="480" MinHeight="580"
+    Width="580" Height="720"
+    MinWidth="500" MinHeight="620"
     WindowStartupLocation="CenterScreen"
-    Background="#0a0a0a"
-    Foreground="#f0f0f0"
-    FontFamily="Segoe UI"
+    WindowStyle="None"
+    AllowsTransparency="True"
+    Background="Transparent"
     Closing="Window_Closing">
 
-    <Window.Resources>
-        <!-- Text styles -->
-        <Style x:Key="MonoLabel" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Consolas"/>
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Foreground" Value="#555"/>
-            <Setter Property="LetterSpacing" Value="2"/>
-        </Style>
+  <Window.Effect>
+    <DropShadowEffect BlurRadius="40" ShadowDepth="12" Direction="270" Opacity="0.7" Color="#000"/>
+  </Window.Effect>
 
-        <!-- Input -->
-        <Style x:Key="Field" TargetType="TextBox">
-            <Setter Property="Background" Value="#111"/>
-            <Setter Property="Foreground" Value="#f0f0f0"/>
-            <Setter Property="BorderBrush" Value="#2a2a2a"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="CaretBrush" Value="#00FF41"/>
-        </Style>
-        <Style x:Key="PasswordField" TargetType="PasswordBox">
-            <Setter Property="Background" Value="#111"/>
-            <Setter Property="Foreground" Value="#f0f0f0"/>
-            <Setter Property="BorderBrush" Value="#2a2a2a"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="FontSize" Value="12"/>
-        </Style>
+  <Window.Resources>
 
-        <!-- Mode tab button -->
-        <Style x:Key="ModeTab" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#555"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="18,8"/>
-            <Setter Property="FontFamily" Value="Consolas"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#2a2a2a"/>
-                                <Setter Property="Foreground" Value="#888"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+    <!-- Mode pill: active Discord -->
+    <Style x:Key="PillActive" TargetType="Border">
+      <Setter Property="CornerRadius" Value="20"/>
+      <Setter Property="Padding"      Value="20,7"/>
+      <Setter Property="Cursor"       Value="Hand"/>
+    </Style>
 
-        <!-- Action button -->
-        <Style x:Key="ActionBtn" TargetType="Button">
-            <Setter Property="Background" Value="#00FF41"/>
-            <Setter Property="Foreground" Value="#000"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="20,10"/>
-            <Setter Property="FontFamily" Value="Consolas"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#00cc33"/></Trigger>
-                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Background" Value="#1a1a1a"/><Setter Property="Foreground" Value="#444"/></Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+    <!-- Status card styles -->
+    <Style x:Key="StatusCard" TargetType="Border">
+      <Setter Property="CornerRadius"    Value="8"/>
+      <Setter Property="Padding"         Value="16,12"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
 
-        <!-- Small ghost button -->
-        <Style x:Key="GhostBtn" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#555"/>
-            <Setter Property="BorderBrush" Value="#2a2a2a"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="FontFamily" Value="Consolas"/>
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="BorderBrush" Value="#00FF41"/>
-                                <Setter Property="Foreground" Value="#00FF41"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+    <!-- Section heading -->
+    <Style x:Key="SectionHead" TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontSize"   Value="10"/>
+      <Setter Property="Foreground" Value="#2a2a2a"/>
+      <Setter Property="Margin"     Value="0,0,0,12"/>
+    </Style>
 
-        <!-- Toggle / CheckBox -->
-        <Style x:Key="Toggle" TargetType="CheckBox">
-            <Setter Property="Foreground" Value="#888"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
+  </Window.Resources>
 
-        <!-- ComboBox -->
-        <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="#111"/>
-            <Setter Property="Foreground" Value="#f0f0f0"/>
-            <Setter Property="BorderBrush" Value="#2a2a2a"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Padding" Value="10,6"/>
-        </Style>
+  <!-- Root card -->
+  <Border Background="#0a0a0a" CornerRadius="12" BorderBrush="#1e1e1e" BorderThickness="1">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>  <!-- Title bar -->
+        <RowDefinition Height="Auto"/>  <!-- Mode tabs -->
+        <RowDefinition/>                <!-- Content -->
+        <RowDefinition Height="Auto"/>  <!-- Settings footer -->
+        <RowDefinition Height="Auto"/>  <!-- Status bar -->
+      </Grid.RowDefinitions>
 
-        <!-- Slider -->
-        <Style TargetType="Slider">
-            <Setter Property="Foreground" Value="#00FF41"/>
-        </Style>
-    </Window.Resources>
+      <!-- ╔══════════════ TITLE BAR ══════════════════════════════════════╗ -->
+      <Border Grid.Row="0" Background="#0f0f0f" CornerRadius="12,12,0,0"
+              BorderBrush="#1e1e1e" BorderThickness="0,0,0,1"
+              MouseLeftButtonDown="DragBar_MouseDown">
+        <Grid Margin="20,12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
 
-    <DockPanel>
+          <!-- Logo -->
+          <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+            <Border Width="6" Height="6" CornerRadius="3" Background="#00FF41" Margin="0,0,8,0"/>
+            <TextBlock Text="VEDION" FontFamily="Consolas" FontSize="11" Foreground="#00FF41"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
 
-        <!-- ── TOP BAR ──────────────────────────────────────────────────── -->
-        <Border DockPanel.Dock="Top" Background="#0f0f0f" BorderBrush="#1a1a1a" BorderThickness="0,0,0,1" Padding="20,0">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+          <!-- Window controls -->
+          <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+            <!-- User badge -->
+            <Border x:Name="UserBadge" Background="#161616" BorderBrush="#1e1e1e" BorderThickness="1"
+                    CornerRadius="12" Padding="10,4" Margin="0,0,10,0">
+              <StackPanel Orientation="Horizontal">
+                <Ellipse Width="8" Height="8" Fill="#00FF41" Margin="0,0,6,0"/>
+                <TextBlock x:Name="UserLabel" Text="" FontFamily="Consolas" FontSize="10"
+                           Foreground="#888" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Border>
+            <!-- Minimize -->
+            <Button Content="—" Foreground="#444" Background="Transparent" BorderThickness="0"
+                    FontSize="12" Cursor="Hand" Click="MinimizeBtn_Click" Width="28" Height="28"
+                    Margin="0,0,4,0" ToolTip="Minimize to tray">
+              <Button.Template>
+                <ControlTemplate TargetType="Button">
+                  <Border x:Name="Bd" Background="Transparent" CornerRadius="4">
+                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                      <Setter TargetName="Bd" Property="Background" Value="#1a1a1a"/>
+                      <Setter Property="Foreground" Value="#888"/>
+                    </Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Button.Template>
+            </Button>
+            <!-- Close -->
+            <Button Content="✕" Foreground="#444" Background="Transparent" BorderThickness="0"
+                    FontSize="12" Cursor="Hand" Click="CloseBtn_Click" Width="28" Height="28">
+              <Button.Template>
+                <ControlTemplate TargetType="Button">
+                  <Border x:Name="Bd" Background="Transparent" CornerRadius="4">
+                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                      <Setter TargetName="Bd" Property="Background" Value="#3a0000"/>
+                      <Setter Property="Foreground" Value="#f87171"/>
+                    </Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Button.Template>
+            </Button>
+          </StackPanel>
+        </Grid>
+      </Border>
 
-                <!-- Logo -->
-                <TextBlock Grid.Column="0" Text="VEDION" FontFamily="Consolas" FontSize="11" Foreground="#00FF41" VerticalAlignment="Center" Margin="0,0,24,0"/>
+      <!-- ╔══════════════ MODE TABS ═══════════════════════════════════════╗ -->
+      <Border Grid.Row="1" Background="#0f0f0f" BorderBrush="#1e1e1e" BorderThickness="0,0,0,1" Padding="20,12">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition/><ColumnDefinition/>
+          </Grid.ColumnDefinitions>
 
-                <!-- Mode tabs -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button x:Name="TabDiscord"  Content="DISCORD"     Style="{StaticResource ModeTab}" Click="TabDiscord_Click"/>
-                    <Button x:Name="TabAi"       Content="AI ANALYSIS" Style="{StaticResource ModeTab}" Click="TabAi_Click"/>
-                </StackPanel>
-
-                <!-- User info -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="UserLabel" Text="" FontFamily="Consolas" FontSize="10" Foreground="#555" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <Button x:Name="SignOutBtn" Content="SIGN OUT" Style="{StaticResource GhostBtn}" Click="SignOut_Click"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- ── STATUS BAR ────────────────────────────────────────────────── -->
-        <Border DockPanel.Dock="Bottom" Background="#0f0f0f" BorderBrush="#1a1a1a" BorderThickness="0,1,0,0" Padding="20,10">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <TextBlock x:Name="StatusLabel" Grid.Column="0" FontFamily="Consolas" FontSize="10" Foreground="#555" VerticalAlignment="Center" Text="Ready"/>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <TextBlock x:Name="HotkeyLabel" FontFamily="Consolas" FontSize="10" Foreground="#333" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                    <Button Content="MINIMIZE TO TRAY" Style="{StaticResource GhostBtn}" Click="MinimizeToTray_Click"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- ── SHARED SETTINGS (always visible) ─────────────────────────── -->
-        <Border DockPanel.Dock="Bottom" Background="#0f0f0f" BorderBrush="#1a1a1a" BorderThickness="0,1,0,0" Padding="20,14">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Region -->
-                <StackPanel Grid.Column="0" Margin="0,0,16,0">
-                    <TextBlock Text="CAPTURE REGION" Style="{StaticResource MonoLabel}" Margin="0,0,0,6"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Button x:Name="RegionBtn" Content="SELECT REGION" Style="{StaticResource GhostBtn}" Click="SelectRegion_Click" Margin="0,0,8,0"/>
-                        <Button Content="RESET" Style="{StaticResource GhostBtn}" Click="ResetRegion_Click"/>
-                    </StackPanel>
-                    <TextBlock x:Name="RegionLabel" Text="Full screen" FontFamily="Consolas" FontSize="10" Foreground="#444" Margin="0,6,0,0"/>
-                </StackPanel>
-
-                <!-- Quality -->
-                <StackPanel Grid.Column="1" Margin="0,0,16,0">
-                    <TextBlock Text="JPEG QUALITY" Style="{StaticResource MonoLabel}" Margin="0,0,0,6"/>
-                    <Slider x:Name="QualitySlider" Minimum="20" Maximum="95" Value="60" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="QualitySlider_Changed"/>
-                    <TextBlock x:Name="QualityLabel" Text="60%" FontFamily="Consolas" FontSize="10" Foreground="#444" Margin="0,4,0,0"/>
-                </StackPanel>
-
-                <!-- Hotkey display -->
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="SNAPSHOT HOTKEY" Style="{StaticResource MonoLabel}" Margin="0,0,0,6"/>
-                    <TextBlock x:Name="SnapHotkeyDisplay" Text="Ctrl+Shift+S" FontFamily="Consolas" FontSize="11" Foreground="#555"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- ── MAIN CONTENT AREA ─────────────────────────────────────────── -->
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20,20,20,0">
-            <StackPanel>
-
-                <!-- ═══ DISCORD MODE ════════════════════════════════════════ -->
-                <StackPanel x:Name="DiscordPanel">
-
-                    <TextBlock Text="DISCORD SNAPSHOT" FontFamily="Consolas" FontSize="10" Foreground="#00FF41" Margin="0,0,0,4"/>
-                    <TextBlock Text="Press the hotkey to capture and send a frame to your Discord channel." FontSize="12" Foreground="#555" Margin="0,0,0,20" TextWrapping="Wrap"/>
-
-                    <!-- Webhook URL -->
-                    <TextBlock Text="WEBHOOK URL" FontFamily="Consolas" FontSize="10" Foreground="#555" Margin="0,0,0,6"/>
-                    <Grid Margin="0,0,0,16">
-                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBox x:Name="DiscordWebhookInput" Grid.Column="0" Style="{StaticResource Field}" Margin="0,0,8,0"
-                                 ToolTip="Paste your Discord webhook URL here"/>
-                        <Button Grid.Column="1" Content="TEST" Style="{StaticResource GhostBtn}" Click="TestDiscordWebhook_Click"/>
-                    </Grid>
-
-                    <!-- Include image toggle -->
-                    <CheckBox x:Name="DiscordImageToggle" Style="{StaticResource Toggle}" Content="Include screenshot in Discord post" Margin="0,0,0,24"/>
-
-                    <!-- Last sent info -->
-                    <Border Background="#111" BorderBrush="#1a1a1a" BorderThickness="1" CornerRadius="6" Padding="16">
-                        <StackPanel>
-                            <TextBlock Text="ACTIVITY" FontFamily="Consolas" FontSize="10" Foreground="#333" Margin="0,0,0,10"/>
-                            <TextBlock x:Name="DiscordLastSent" Text="No snapshots sent yet." FontSize="12" Foreground="#555"/>
-                            <TextBlock x:Name="DiscordSentCount" Text="Total sent: 0" FontFamily="Consolas" FontSize="10" Foreground="#333" Margin="0,6,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- How-to reminder -->
-                    <Border Background="#0d1a0d" BorderBrush="#1a2a1a" BorderThickness="1" CornerRadius="6" Padding="14" Margin="0,16,0,0">
-                        <StackPanel>
-                            <TextBlock Text="HOW TO USE" FontFamily="Consolas" FontSize="10" Foreground="#2a4a2a" Margin="0,0,0,8"/>
-                            <TextBlock FontSize="12" Foreground="#3a6a3a" TextWrapping="Wrap">
-                                1. Paste your Discord webhook URL above<LineBreak/>
-                                2. Select a region (optional — default is full screen)<LineBreak/>
-                                3. Press <Run FontWeight="Bold" Foreground="#00FF41">Ctrl+Shift+S</Run> any time to send a snapshot
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <!-- ═══ AI MODE ══════════════════════════════════════════════ -->
-                <StackPanel x:Name="AiPanel" Visibility="Collapsed">
-
-                    <TextBlock Text="AI ANALYSIS" FontFamily="Consolas" FontSize="10" Foreground="#7B2FFF" Margin="0,0,0,4"/>
-                    <TextBlock Text="Send a screenshot to any AI. Response posts to Discord." FontSize="12" Foreground="#555" Margin="0,0,0,20" TextWrapping="Wrap"/>
-
-                    <!-- AI Provider -->
-                    <TextBlock Text="AI PROVIDER" FontFamily="Consolas" FontSize="10" Foreground="#555" Margin="0,0,0,6"/>
-                    <ComboBox x:Name="AiProviderCombo" Margin="0,0,0,16" SelectionChanged="AiProviderCombo_Changed"/>
-
-                    <!-- API Key -->
-                    <TextBlock Text="API KEY" FontFamily="Consolas" FontSize="10" Foreground="#555" Margin="0,0,0,6"/>
-                    <PasswordBox x:Name="AiKeyInput" Style="{StaticResource PasswordField}" Margin="0,0,0,16"/>
-
-                    <!-- Model -->
-                    <TextBlock Text="MODEL" FontFamily="Consolas" FontSize="10" Foreground="#555" Margin="0,0,0,6"/>
-                    <TextBox x:Name="AiModelInput" Style="{StaticResource Field}" Margin="0,0,0,16"/>
-
-                    <!-- Custom endpoint (shown for Custom provider) -->
-                    <StackPanel x:Name="CustomEndpointPanel" Visibility="Collapsed">
-                        <TextBlock Text="ENDPOINT URL" FontFamily="Consolas" FontSize="10" Foreground="#555" Margin="0,0,0,6"/>
-                        <TextBox x:Name="AiEndpointInput" Style="{StaticResource Field}" Margin="0,0,0,16"
-                                 ToolTip="OpenAI-compatible endpoint (e.g. https://api.openai.com/v1/chat/completions)"/>
-                    </StackPanel>
-
-                    <!-- Prompt -->
-                    <TextBlock Text="PROMPT" FontFamily="Consolas" FontSize="10" Foreground="#555" Margin="0,0,0,6"/>
-                    <TextBox x:Name="AiPromptInput" Style="{StaticResource Field}" Height="72" TextWrapping="Wrap"
-                             AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Margin="0,0,0,16"
-                             Text="Describe what you see on this screen. Be concise and helpful."/>
-
-                    <!-- Output webhook -->
-                    <TextBlock Text="OUTPUT DISCORD WEBHOOK" FontFamily="Consolas" FontSize="10" Foreground="#555" Margin="0,0,0,6"/>
-                    <Grid Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBox x:Name="AiWebhookInput" Grid.Column="0" Style="{StaticResource Field}" Margin="0,0,8,0"/>
-                        <Button Grid.Column="1" Content="TEST" Style="{StaticResource GhostBtn}" Click="TestAiWebhook_Click"/>
-                    </Grid>
-
-                    <!-- Include image toggle -->
-                    <CheckBox x:Name="AiImageToggle" Style="{StaticResource Toggle}" Content="Include screenshot in Discord post" Margin="0,0,0,16"/>
-
-                    <!-- Trigger mode -->
-                    <TextBlock Text="TRIGGER" FontFamily="Consolas" FontSize="10" Foreground="#555" Margin="0,0,0,10"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <RadioButton x:Name="HotkeyRadio" Content="Hotkey (Ctrl+Shift+S)" Foreground="#888" FontSize="12"
-                                     GroupName="TriggerMode" IsChecked="True" Margin="0,0,16,0" Checked="TriggerMode_Changed"/>
-                        <RadioButton x:Name="IntervalRadio" Content="Interval" Foreground="#888" FontSize="12"
-                                     GroupName="TriggerMode" Checked="TriggerMode_Changed"/>
-                    </StackPanel>
-
-                    <!-- Interval controls -->
-                    <StackPanel x:Name="IntervalPanel" Visibility="Collapsed" Margin="0,0,0,16">
-                        <Grid>
-                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <Slider x:Name="AiIntervalSlider" Grid.Column="0" Minimum="5" Maximum="300" Value="10"
-                                    TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="IntervalSlider_Changed" Margin="0,0,12,0"/>
-                            <TextBlock x:Name="IntervalLabel" Grid.Column="1" Text="10s" FontFamily="Consolas" FontSize="11" Foreground="#555" VerticalAlignment="Center" Width="36"/>
-                        </Grid>
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <Button x:Name="StartIntervalBtn" Content="START" Style="{StaticResource ActionBtn}" Click="StartInterval_Click" Margin="0,0,8,0"/>
-                            <Button x:Name="StopIntervalBtn" Content="STOP" Style="{StaticResource GhostBtn}" Click="StopInterval_Click" IsEnabled="False"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <!-- Test button (hotkey mode) -->
-                    <Button x:Name="AiTestBtn" Content="TEST NOW" Style="{StaticResource GhostBtn}" Click="AiTestNow_Click" HorizontalAlignment="Left" Margin="0,0,0,16"/>
-
-                    <!-- Last AI response -->
-                    <Border Background="#111" BorderBrush="#1a1a1a" BorderThickness="1" CornerRadius="6" Padding="16">
-                        <StackPanel>
-                            <TextBlock Text="LAST RESPONSE" FontFamily="Consolas" FontSize="10" Foreground="#333" Margin="0,0,0,10"/>
-                            <TextBlock x:Name="AiLastResponse" Text="No analysis yet." FontSize="12" Foreground="#555" TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
+          <!-- Discord tab -->
+          <Border Grid.Column="0" x:Name="DiscordTab" CornerRadius="8" Cursor="Hand"
+                  MouseLeftButtonDown="TabDiscord_Click" Margin="0,0,6,0" Padding="0,10">
+            <StackPanel HorizontalAlignment="Center">
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
+                <Ellipse x:Name="DiscordDot" Width="6" Height="6" Fill="#00FF41"
+                         VerticalAlignment="Center" Margin="0,0,7,0"/>
+                <TextBlock x:Name="DiscordTabText" Text="DISCORD" FontFamily="Consolas"
+                           FontSize="11" Foreground="#00FF41" VerticalAlignment="Center"/>
+              </StackPanel>
+              <TextBlock Text="Hotkey Snapshots" FontSize="10" Foreground="#3a6a3a"
+                         HorizontalAlignment="Center"/>
             </StackPanel>
-        </ScrollViewer>
-    </DockPanel>
+          </Border>
+
+          <!-- AI tab -->
+          <Border Grid.Column="1" x:Name="AiTab" CornerRadius="8" Cursor="Hand"
+                  MouseLeftButtonDown="TabAi_Click" Margin="6,0,0,0" Padding="0,10">
+            <StackPanel HorizontalAlignment="Center">
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
+                <Ellipse x:Name="AiDot" Width="6" Height="6" Fill="#444"
+                         VerticalAlignment="Center" Margin="0,0,7,0"/>
+                <TextBlock x:Name="AiTabText" Text="AI ANALYSIS" FontFamily="Consolas"
+                           FontSize="11" Foreground="#444" VerticalAlignment="Center"/>
+              </StackPanel>
+              <TextBlock Text="Any AI Provider" FontSize="10" Foreground="#333"
+                         HorizontalAlignment="Center"/>
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Border>
+
+      <!-- ╔══════════════ CONTENT ═════════════════════════════════════════╗ -->
+      <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="20,20,20,0">
+        <StackPanel>
+
+          <!-- ▓▓▓ DISCORD PANEL ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ -->
+          <StackPanel x:Name="DiscordPanel">
+
+            <!-- Status card -->
+            <Border Style="{StaticResource StatusCard}" Margin="0,0,0,16"
+                    Background="#0d1a0d" BorderBrush="#1a3a1a">
+              <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                  <TextBlock Text="STATUS" Style="{StaticResource SectionHead}"/>
+                  <StackPanel Orientation="Horizontal">
+                    <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#00FF41"
+                             VerticalAlignment="Center" Margin="0,0,8,0">
+                      <Ellipse.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                          <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever">
+                              <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                               From="1" To="0.2" Duration="0:0:1.2" AutoReverse="True"/>
+                            </Storyboard>
+                          </BeginStoryboard>
+                        </EventTrigger>
+                      </Ellipse.Triggers>
+                    </Ellipse>
+                    <TextBlock Text="Ready — waiting for hotkey" FontSize="13"
+                               Foreground="#5a9a5a" FontWeight="SemiBold"/>
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                  <TextBlock x:Name="DiscordSentCount" Text="0" FontFamily="Consolas"
+                             FontSize="28" FontWeight="Black" Foreground="#1a4a1a"
+                             HorizontalAlignment="Center"/>
+                  <TextBlock Text="SENT" FontFamily="Consolas" FontSize="9" Foreground="#1a3a1a"
+                             HorizontalAlignment="Center"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <!-- Webhook input -->
+            <TextBlock Text="DISCORD WEBHOOK URL" Style="{StaticResource MonoLabel}"/>
+            <Grid Margin="0,0,0,16">
+              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <TextBox x:Name="DiscordWebhookInput" Grid.Column="0" Style="{StaticResource Field}"
+                       Margin="0,0,8,0" ToolTip="Paste your Discord webhook URL"/>
+              <Button Grid.Column="1" Content="TEST" Style="{StaticResource GhostBtn}"
+                      Click="TestDiscordWebhook_Click"/>
+            </Grid>
+
+            <!-- Include image -->
+            <CheckBox x:Name="DiscordImageToggle" Style="{StaticResource Toggle}"
+                      Content="Include screenshot in Discord post" Margin="0,0,0,20"
+                      IsChecked="True"/>
+
+            <!-- Last sent -->
+            <Border Background="#111" BorderBrush="#1a1a1a" BorderThickness="1"
+                    CornerRadius="8" Padding="16" Margin="0,0,0,16">
+              <StackPanel>
+                <TextBlock Text="LAST SNAPSHOT" Style="{StaticResource SectionHead}"/>
+                <TextBlock x:Name="DiscordLastSent" Text="Nothing sent yet."
+                           FontSize="12" Foreground="#444"/>
+              </StackPanel>
+            </Border>
+
+            <!-- Guide -->
+            <Border Background="#0d1a0d" BorderBrush="#1a2a1a" BorderThickness="0,0,0,0"
+                    CornerRadius="8" Padding="16">
+              <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                  <GradientStop Color="#1a3a1a" Offset="0"/>
+                  <GradientStop Color="#0d1a0d" Offset="1"/>
+                </LinearGradientBrush>
+              </Border.BorderBrush>
+              <StackPanel>
+                <TextBlock Text="HOW TO USE" Style="{StaticResource SectionHead}" Foreground="#2a4a2a"/>
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20"/><ColumnDefinition/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition/><RowDefinition/><RowDefinition/>
+                  </Grid.RowDefinitions>
+                  <TextBlock Grid.Row="0" Grid.Column="0" Text="1." FontFamily="Consolas" FontSize="11" Foreground="#2a4a2a"/>
+                  <TextBlock Grid.Row="0" Grid.Column="1" Text="Paste your Discord webhook URL above" FontSize="12" Foreground="#3a5a3a" Margin="0,0,0,4"/>
+                  <TextBlock Grid.Row="1" Grid.Column="0" Text="2." FontFamily="Consolas" FontSize="11" Foreground="#2a4a2a"/>
+                  <TextBlock Grid.Row="1" Grid.Column="1" Text="Optionally select a screen region below" FontSize="12" Foreground="#3a5a3a" Margin="0,0,0,4"/>
+                  <TextBlock Grid.Row="2" Grid.Column="0" Text="3." FontFamily="Consolas" FontSize="11" Foreground="#2a4a2a"/>
+                  <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="Press " FontSize="12" Foreground="#3a5a3a"/>
+                    <Border Background="#0a2a0a" BorderBrush="#1a4a1a" BorderThickness="1" CornerRadius="3" Padding="6,1" Margin="2,0">
+                      <TextBlock Text="Ctrl+Shift+S" FontFamily="Consolas" FontSize="11" Foreground="#00FF41"/>
+                    </Border>
+                    <TextBlock Text=" to send a snapshot" FontSize="12" Foreground="#3a5a3a"/>
+                  </StackPanel>
+                </Grid>
+              </StackPanel>
+            </Border>
+
+          </StackPanel>
+
+          <!-- ▓▓▓ AI PANEL ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ -->
+          <StackPanel x:Name="AiPanel" Visibility="Collapsed">
+
+            <!-- Provider selector -->
+            <TextBlock Text="AI PROVIDER" Style="{StaticResource MonoLabel}"/>
+            <ComboBox x:Name="AiProviderCombo" Margin="0,0,0,16"
+                      SelectionChanged="AiProviderCombo_Changed"/>
+
+            <!-- API Key + Model in two columns -->
+            <Grid Margin="0,0,0,16">
+              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="16"/><ColumnDefinition/></Grid.ColumnDefinitions>
+              <StackPanel Grid.Column="0">
+                <TextBlock Text="API KEY" Style="{StaticResource MonoLabel}"/>
+                <PasswordBox x:Name="AiKeyInput" Style="{StaticResource PasswordField}"/>
+              </StackPanel>
+              <StackPanel Grid.Column="2">
+                <TextBlock Text="MODEL" Style="{StaticResource MonoLabel}"/>
+                <TextBox x:Name="AiModelInput" Style="{StaticResource Field}"/>
+              </StackPanel>
+            </Grid>
+
+            <!-- Custom endpoint -->
+            <StackPanel x:Name="CustomEndpointPanel" Visibility="Collapsed" Margin="0,0,0,16">
+              <TextBlock Text="ENDPOINT URL" Style="{StaticResource MonoLabel}"/>
+              <TextBox x:Name="AiEndpointInput" Style="{StaticResource Field}"
+                       ToolTip="OpenAI-compatible: https://api.openai.com/v1/chat/completions"/>
+            </StackPanel>
+
+            <!-- Prompt -->
+            <TextBlock Text="PROMPT" Style="{StaticResource MonoLabel}"/>
+            <TextBox x:Name="AiPromptInput" Style="{StaticResource MultiField}"
+                     Height="64" Margin="0,0,0,16"
+                     Text="Describe what you see on this screen. Be concise and helpful."/>
+
+            <!-- Output webhook -->
+            <TextBlock Text="OUTPUT DISCORD WEBHOOK" Style="{StaticResource MonoLabel}"/>
+            <Grid Margin="0,0,0,12">
+              <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+              <TextBox x:Name="AiWebhookInput" Grid.Column="0" Style="{StaticResource Field}" Margin="0,0,8,0"/>
+              <Button Grid.Column="1" Content="TEST" Style="{StaticResource GhostBtn}" Click="TestAiWebhook_Click"/>
+            </Grid>
+
+            <!-- Include image -->
+            <CheckBox x:Name="AiImageToggle" Style="{StaticResource Toggle}"
+                      Content="Include screenshot in Discord post" Margin="0,0,0,20" IsChecked="True"/>
+
+            <!-- Trigger mode -->
+            <Border Background="#111" BorderBrush="#1e1e1e" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,16">
+              <StackPanel>
+                <TextBlock Text="TRIGGER MODE" Style="{StaticResource SectionHead}"/>
+                <Grid>
+                  <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+
+                  <!-- Hotkey option -->
+                  <Border Grid.Column="0" x:Name="HotkeyCard" Background="#0d0d0d" BorderBrush="#1e1e1e"
+                          BorderThickness="1" CornerRadius="6" Padding="14,10" Margin="0,0,6,0"
+                          Cursor="Hand" MouseLeftButtonDown="HotkeyCard_Click">
+                    <StackPanel>
+                      <RadioButton x:Name="HotkeyRadio" GroupName="TriggerMode" IsChecked="True"
+                                   Foreground="#888" FontFamily="Consolas" FontSize="10"
+                                   Content="HOTKEY" Checked="TriggerMode_Changed"/>
+                      <TextBlock Text="Ctrl+Shift+S" FontFamily="Consolas" FontSize="13"
+                                 Foreground="#00FF41" Margin="18,4,0,0"/>
+                    </StackPanel>
+                  </Border>
+
+                  <!-- Interval option -->
+                  <Border Grid.Column="1" x:Name="IntervalCard" Background="#0d0d0d" BorderBrush="#1e1e1e"
+                          BorderThickness="1" CornerRadius="6" Padding="14,10" Margin="6,0,0,0"
+                          Cursor="Hand" MouseLeftButtonDown="IntervalCard_Click">
+                    <StackPanel>
+                      <RadioButton x:Name="IntervalRadio" GroupName="TriggerMode"
+                                   Foreground="#888" FontFamily="Consolas" FontSize="10"
+                                   Content="INTERVAL" Checked="TriggerMode_Changed"/>
+                      <TextBlock x:Name="IntervalCardLabel" Text="10s" FontFamily="Consolas" FontSize="13"
+                                 Foreground="#555" Margin="18,4,0,0"/>
+                    </StackPanel>
+                  </Border>
+                </Grid>
+
+                <!-- Interval controls -->
+                <StackPanel x:Name="IntervalPanel" Visibility="Collapsed" Margin="0,12,0,0">
+                  <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <Slider x:Name="AiIntervalSlider" Grid.Column="0" Minimum="5" Maximum="300"
+                            Value="10" IsSnapToTickEnabled="True" TickFrequency="5"
+                            ValueChanged="IntervalSlider_Changed" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="IntervalLabel" Grid.Column="1" Text="10s"
+                               FontFamily="Consolas" FontSize="11" Foreground="#555"
+                               VerticalAlignment="Center" Width="32"/>
+                  </Grid>
+                  <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <Button x:Name="StartIntervalBtn" Content="START" Style="{StaticResource PrimaryBtn}"
+                            Padding="16,9" Click="StartInterval_Click" Margin="0,0,8,0"/>
+                    <Button x:Name="StopIntervalBtn" Content="STOP" Style="{StaticResource GhostBtn}"
+                            Click="StopInterval_Click" IsEnabled="False"/>
+                  </StackPanel>
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
+            <!-- Test now (hotkey mode) -->
+            <Button x:Name="AiTestBtn" Content="SEND NOW" Style="{StaticResource GhostBtn}"
+                    Click="AiTestNow_Click" HorizontalAlignment="Left" Margin="0,0,0,16"/>
+
+            <!-- Last response -->
+            <Border Background="#111" BorderBrush="#1a1a1a" BorderThickness="0,0,0,0"
+                    CornerRadius="8" Padding="16">
+              <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                  <GradientStop Color="#1a1040" Offset="0"/>
+                  <GradientStop Color="#111" Offset="0.4"/>
+                </LinearGradientBrush>
+              </Border.BorderBrush>
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                  <GradientStop Color="#0d0b16" Offset="0"/>
+                  <GradientStop Color="#111" Offset="0.4"/>
+                </LinearGradientBrush>
+              </Border.Background>
+              <StackPanel>
+                <TextBlock Text="LAST AI RESPONSE" Style="{StaticResource SectionHead}" Foreground="#2a1a44"/>
+                <TextBlock x:Name="AiLastResponse" Text="No analysis yet."
+                           FontSize="12" Foreground="#555" TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- ╔══════════════ SETTINGS FOOTER ════════════════════════════════╗ -->
+      <Border Grid.Row="3" Background="#0f0f0f" BorderBrush="#1e1e1e" BorderThickness="0,1,0,0" Padding="20,14">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="1"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="1"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <!-- Region -->
+          <StackPanel Grid.Column="0" Margin="0,0,16,0">
+            <TextBlock Text="REGION" Style="{StaticResource MonoLabel}"/>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+              <Button Content="SELECT" Style="{StaticResource GhostBtn}" Click="SelectRegion_Click" Margin="0,0,6,0"/>
+              <Button Content="RESET"  Style="{StaticResource GhostBtn}" Click="ResetRegion_Click"/>
+            </StackPanel>
+            <TextBlock x:Name="RegionLabel" Text="Full screen" FontFamily="Consolas"
+                       FontSize="10" Foreground="#333"/>
+          </StackPanel>
+
+          <!-- Divider -->
+          <Border Grid.Column="1" Background="#1e1e1e" Margin="0,4"/>
+
+          <!-- Quality -->
+          <StackPanel Grid.Column="2" Margin="16,0">
+            <Grid>
+              <TextBlock Text="JPEG QUALITY" Style="{StaticResource MonoLabel}"/>
+              <TextBlock x:Name="QualityLabel" Text="60%" FontFamily="Consolas" FontSize="10"
+                         Foreground="#00FF41" HorizontalAlignment="Right" Margin="0,0,0,6"/>
+            </Grid>
+            <Slider x:Name="QualitySlider" Minimum="20" Maximum="95" Value="60"
+                    TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="QualitySlider_Changed"/>
+          </StackPanel>
+
+          <!-- Divider -->
+          <Border Grid.Column="3" Background="#1e1e1e" Margin="0,4"/>
+
+          <!-- Hotkey hint -->
+          <StackPanel Grid.Column="4" Margin="16,0,0,0" VerticalAlignment="Center">
+            <TextBlock Text="SNAPSHOT" Style="{StaticResource MonoLabel}"/>
+            <Border Background="#0a1a0a" BorderBrush="#1a3a1a" BorderThickness="1"
+                    CornerRadius="4" Padding="8,4">
+              <TextBlock x:Name="SnapHotkeyDisplay" Text="Ctrl+Shift+S"
+                         FontFamily="Consolas" FontSize="11" Foreground="#00FF41"/>
+            </Border>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- ╔══════════════ STATUS BAR ══════════════════════════════════════╗ -->
+      <Border Grid.Row="4" Background="#080808" CornerRadius="0,0,12,12"
+              BorderBrush="#1e1e1e" BorderThickness="0,1,0,0" Padding="20,10">
+        <Grid>
+          <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock x:Name="StatusLabel" Grid.Column="0" FontFamily="Consolas"
+                     FontSize="10" Foreground="#333" VerticalAlignment="Center" Text="Idle"/>
+          <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <Button Content="SIGN OUT" Style="{StaticResource GhostBtn}" Click="SignOut_Click" Margin="0,0,8,0"/>
+            <TextBlock Text="v2.0" FontFamily="Consolas" FontSize="10"
+                       Foreground="#1e1e1e" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+    </Grid>
+  </Border>
 </Window>

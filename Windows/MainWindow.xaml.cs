@@ -33,7 +33,29 @@ public partial class MainWindow : Window
         SetMode(_config.Mode);
         RegisterHotkeys();
 
-        UserLabel.Text = _user.DisplayName is { Length: > 0 } n ? n : _user.Email;
+        string display = _user.DisplayName is { Length: > 0 } n ? n : _user.Email;
+        UserLabel.Text = display.Length > 20 ? display[..20] + "…" : display;
+    }
+
+    // Custom chrome
+    private void DragBar_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed) DragMove();
+    }
+
+    private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
+    {
+        SaveConfig();
+        Hide();
+    }
+
+    private void CloseBtn_Click(object sender, RoutedEventArgs e)
+    {
+        SaveConfig();
+        _hotkeys?.Dispose();
+        _intervalTimer?.Stop();
+        if (_tray is not null) _tray.Visible = false;
+        Environment.Exit(0);
     }
 
     // ── Mode switching ────────────────────────────────────────────────────
@@ -46,18 +68,35 @@ public partial class MainWindow : Window
         DiscordPanel.Visibility = mode == AppMode.Discord ? Visibility.Visible : Visibility.Collapsed;
         AiPanel.Visibility      = mode == AppMode.AiAnalysis ? Visibility.Visible : Visibility.Collapsed;
 
-        // Style active tab
-        TabDiscord.Foreground = mode == AppMode.Discord
-            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 255, 65))
-            : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(85, 85, 85));
+        // Discord tab active state
+        bool disc = mode == AppMode.Discord;
+        DiscordTab.Background   = disc
+            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x14, 0x00, 0xFF, 0x41))
+            : System.Windows.Media.Brushes.Transparent;
+        DiscordTabText.Foreground = disc
+            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x00, 0xFF, 0x41))
+            : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x44, 0x44, 0x44));
+        DiscordDot.Fill = disc
+            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x00, 0xFF, 0x41))
+            : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x33, 0x33, 0x33));
 
-        TabAi.Foreground = mode == AppMode.AiAnalysis
-            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(123, 47, 255))
-            : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(85, 85, 85));
+        // AI tab active state
+        bool ai = mode == AppMode.AiAnalysis;
+        AiTab.Background   = ai
+            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(0x14, 0x7B, 0x2F, 0xFF))
+            : System.Windows.Media.Brushes.Transparent;
+        AiTabText.Foreground = ai
+            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x7B, 0x2F, 0xFF))
+            : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x44, 0x44, 0x44));
+        AiDot.Fill = ai
+            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x7B, 0x2F, 0xFF))
+            : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x33, 0x33, 0x33));
     }
 
-    private void TabDiscord_Click(object sender, RoutedEventArgs e) => SetMode(AppMode.Discord);
-    private void TabAi_Click(object sender, RoutedEventArgs e)      => SetMode(AppMode.AiAnalysis);
+    private void TabDiscord_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) => SetMode(AppMode.Discord);
+    private void TabAi_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) => SetMode(AppMode.AiAnalysis);
+    private void HotkeyCard_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) { HotkeyRadio.IsChecked = true; }
+    private void IntervalCard_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) { IntervalRadio.IsChecked = true; }
 
     // ── Form population ───────────────────────────────────────────────────
 
@@ -151,8 +190,8 @@ public partial class MainWindow : Window
             await DiscordService.PostAsync(webhook, "", sendImg ? frame : null);
 
             _snapCount++;
-            DiscordLastSent.Text  = $"Last sent: {DateTime.Now:HH:mm:ss}";
-            DiscordSentCount.Text = $"Total sent: {_snapCount}";
+            DiscordLastSent.Text  = $"Last sent at {DateTime.Now:HH:mm:ss}";
+            DiscordSentCount.Text = _snapCount.ToString();
             SetStatus($"Snapshot sent to Discord ✓");
         }
         catch (Exception ex) { SetStatus($"Error: {ex.Message}"); }
@@ -262,7 +301,11 @@ public partial class MainWindow : Window
     }
 
     private void IntervalSlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        => IntervalLabel.Text = $"{(int)e.NewValue}s";
+    {
+        string s = $"{(int)e.NewValue}s";
+        if (IntervalLabel is not null)     IntervalLabel.Text     = s;
+        if (IntervalCardLabel is not null) IntervalCardLabel.Text = s;
+    }
 
     // ── Shared settings ───────────────────────────────────────────────────
 
@@ -321,11 +364,7 @@ public partial class MainWindow : Window
         _tray.DoubleClick += (_, _) => { Show(); WindowState = WindowState.Normal; Activate(); };
     }
 
-    private void MinimizeToTray_Click(object sender, RoutedEventArgs e)
-    {
-        SaveConfig();
-        Hide();
-    }
+    // (MinimizeToTray handled by MinimizeBtn_Click / tray)
 
     // ── Lifecycle ─────────────────────────────────────────────────────────
 
@@ -346,10 +385,10 @@ public partial class MainWindow : Window
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
+        // Minimize to tray instead of closing (user uses tray Exit to fully quit)
+        e.Cancel = true;
         SaveConfig();
-        _hotkeys?.Dispose();
-        _intervalTimer?.Stop();
-        if (_tray is not null) _tray.Visible = false;
+        Hide();
     }
 
     private void SaveConfig()

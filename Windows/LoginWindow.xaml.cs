@@ -15,8 +15,15 @@ public partial class LoginWindow : Window
     public LoginWindow()
     {
         InitializeComponent();
-        EmailInput.Focus();
+        Loaded += (_, _) => EmailInput.Focus();
     }
+
+    private void DragBar_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed) DragMove();
+    }
+
+    private void CloseBtn_Click(object sender, RoutedEventArgs e) => Close();
 
     // ── Toggle sign-in / sign-up ──────────────────────────────────────────
 
@@ -133,12 +140,23 @@ public partial class LoginWindow : Window
         PrimaryButton.Content   = busy ? "..." : (_isSignUp ? "CREATE ACCOUNT" : "SIGN IN");
     }
 
-    private void ShowError(string msg) => ShowStatus(msg, "#f87171");
+    private void ShowError(string msg)
+    {
+        StatusBorder.Visibility = Visibility.Visible;
+        StatusLabel.Text        = msg;
+        StatusLabel.Foreground  = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromRgb(0xf8, 0x71, 0x71));
+    }
 
     private void ShowStatus(string msg, string color)
     {
-        StatusLabel.Text = msg;
-        StatusLabel.Foreground = new System.Windows.Media.SolidColorBrush(
+        StatusBorder.Visibility   = Visibility.Visible;
+        StatusLabel.Text          = msg;
+        StatusLabel.Foreground    = new System.Windows.Media.SolidColorBrush(
             (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(color));
+        StatusBorder.Background   = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromArgb(0x1a, 0x00, 0x20, 0x00));
+        StatusBorder.BorderBrush  = new System.Windows.Media.SolidColorBrush(
+            System.Windows.Media.Color.FromArgb(0x44, 0x00, 0xFF, 0x41));
     }
 }
