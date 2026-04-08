@@ -210,8 +210,7 @@
               <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
               <TextBox x:Name="DiscordWebhookInput" Grid.Column="0" Style="{StaticResource Field}"
                        Margin="0,0,8,0" ToolTip="Paste your Discord webhook URL"/>
-              <Button Grid.Column="1" Content="TEST" Style="{StaticResource GhostBtn}"
-                      Click="TestDiscordWebhook_Click"><Button.Content><StackPanel Orientation="Horizontal"><Path Data="{StaticResource SignalGeo}" Style="{StaticResource Icon12}" Stroke="#555" Margin="0,0,5,0"/><TextBlock Text="TEST" FontFamily="Consolas" FontSize="10"/></StackPanel></Button.Content></Button>
+              <Button Grid.Column="1" Style="{StaticResource GhostBtn}" Click="TestDiscordWebhook_Click"><Button.Content><StackPanel Orientation="Horizontal"><Path Data="{StaticResource SignalGeo}" Style="{StaticResource Icon12}" Stroke="#555" Margin="0,0,5,0"/><TextBlock Text="TEST" FontFamily="Consolas" FontSize="10"/></StackPanel></Button.Content></Button>
             </Grid>
 
             <!-- Include image -->
@@ -357,10 +356,8 @@
                                VerticalAlignment="Center" Width="32"/>
                   </Grid>
                   <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                    <Button x:Name="StartIntervalBtn" Content="START" Style="{StaticResource PrimaryBtn}"
-                            Padding="16,9" Click="StartInterval_Click" Margin="0,0,8,0"/>
-                    <Button x:Name="StopIntervalBtn" Content="STOP" Style="{StaticResource GhostBtn}"
-                            Click="StopInterval_Click" IsEnabled="False"/>
+                    <Button x:Name="StartIntervalBtn" Style="{StaticResource PrimaryBtn}" Padding="16,9" Click="StartInterval_Click" Margin="0,0,8,0"><Button.Content><StackPanel Orientation="Horizontal"><Path Data="{StaticResource PlayGeo}" Style="{StaticResource Icon12}" Stroke="#000" Margin="0,0,5,0"/><TextBlock Text="START" FontFamily="Consolas" FontSize="10"/></StackPanel></Button.Content></Button>
+                    <Button x:Name="StopIntervalBtn" Style="{StaticResource GhostBtn}" Click="StopInterval_Click" IsEnabled="False"><Button.Content><StackPanel Orientation="Horizontal"><Path Data="{StaticResource StopGeo}" Style="{StaticResource Icon12}" Stroke="#555" Margin="0,0,5,0"/><TextBlock Text="STOP" FontFamily="Consolas" FontSize="10"/></StackPanel></Button.Content></Button>
                   </StackPanel>
                 </StackPanel>
               </StackPanel>
